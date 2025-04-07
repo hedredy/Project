@@ -2,44 +2,52 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>В разработке</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Сайт в разработке</title>
     <style>
+        /* Базовые стили */
         body {
             margin: 0;
             padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: #f4f4f4;
-            font-family: Arial, sans-serif;
-        }
-        .message {
             text-align: center;
-            font-size: 36px;
             color: #333;
-            background-color: rgba(255, 255, 255, 0.8);
+        }
+
+        .container {
+            max-width: 90%;
             padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        .message h1 {
-            margin: 0;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
-        body {
-            user-select: none;
-            -webkit-user-drag: none;
+        h1 {
+            font-size: 2rem;
+            color: #f44336;
         }
 
-        meta[name="viewport"] {
-            content: "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no";
+        /* Медиазапросы для улучшения отображения на мобильных */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .container {
+                padding: 10px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="message">
+    <div class="container">
         <h1>Сайт в разработке</h1>
     </div>
-</
+</body>
+</html>
