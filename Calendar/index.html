@@ -5,7 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>HedRed</title>
   <style>
-    /* Основной стиль */
+    /* Ваши общие стили */
+    :root {
+      --accent: #4CAF50;
+    }
+
     body {
       font-family: 'Arial', sans-serif;
       margin: 0;
@@ -14,7 +18,7 @@
     }
 
     header {
-      background-color: #4CAF50;
+      background-color: var(--accent);
       padding: 1rem;
       display: flex;
       justify-content: space-between;
@@ -75,68 +79,64 @@
       z-index: 998;
     }
 
-    /* Стиль для календаря */
+    /* Календарь */
     .calendar-container {
       max-width: 800px;
-      margin: 2rem auto;
-      padding: 2rem;
-      background-color: white;
-      border-radius: 12px;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      margin: auto;
+      padding: 1rem;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
     }
 
-    .calendar-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+    .calendar-container table {
+      width: 100%;
+      border-collapse: collapse;
     }
 
-    .calendar-header h2 {
-      margin: 0;
+    .calendar-container th,
+    .calendar-container td {
+      padding: 0.5rem;
+      text-align: center;
+      border: 1px solid #ddd;
     }
 
-    .calendar-grid {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 10px;
-      margin-top: 1rem;
+    .calendar-container th {
+      background-color: #f7f9fb;
     }
 
     .calendar-day {
-      padding: 10px;
-      text-align: center;
       cursor: pointer;
-      background-color: #f1f1f1;
-      border-radius: 8px;
     }
 
     .calendar-day:hover {
-      background-color: #ddd;
+      background-color: #f0f0f0;
     }
 
     .task-list {
-      margin-top: 2rem;
+      margin-top: 1rem;
     }
 
     .task-item {
-      background-color: #f9f9f9;
-      padding: 1rem;
-      margin: 1rem 0;
+      padding: 0.5rem;
+      border-left: 5px solid var(--accent);
+      margin: 0.5rem 0;
+      background: #f0f0f0;
       border-radius: 10px;
-      border-left: 5px solid #4CAF50;
     }
 
     .open-modal-btn {
-      background-color: #4CAF50;
+      background: var(--accent);
       color: white;
       border: none;
-      padding: 10px 20px;
-      border-radius: 8px;
+      padding: 0.7rem 1.2rem;
+      border-radius: 12px;
       cursor: pointer;
       display: block;
-      margin: 2rem auto;
+      margin: 1rem auto;
     }
 
+    /* Модальные окна */
     .modal {
       display: none;
       position: fixed;
@@ -266,7 +266,7 @@
       document.getElementById('calendarMonth').textContent = `${months[currentMonth]} ${currentYear}`;
     }
 
-    // Открытие задачи
+    // Открытие задач на выбранный день
     function openDay(day) {
       const tasks = getTasksForDay(day);
       let taskHtml = '';
