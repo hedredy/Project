@@ -1,1 +1,220 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Календарь | HedRed</title>
+  <link rel="stylesheet" href="../style.css" />
+  <style>
+    .calendar {
+      max-width: 900px;
+      margin: 2rem auto;
+      background: white;
+      padding: 1rem;
+      border-radius: 20px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+    }
 
+    .calendar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .calendar-header button {
+      background: var(--accent);
+      border: none;
+      color: white;
+      padding: 0.4rem 0.9rem;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 10px;
+      text-align: center;
+    }
+
+    .day-name {
+      font-weight: bold;
+      color: #888;
+    }
+
+    .day {
+      padding: 1rem 0.5rem;
+      background: #f5f5f5;
+      border-radius: 12px;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .day.today {
+      border: 2px solid var(--accent);
+    }
+
+    .day .dot {
+      width: 6px;
+      height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+      position: absolute;
+      bottom: 6px;
+      right: 6px;
+    }
+
+    .modal {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 20px;
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      display: none;
+      z-index: 2000;
+    }
+
+    .modal input, .modal textarea {
+      width: 100%;
+      margin-bottom: 10px;
+      padding: 0.6rem;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+    }
+
+    .modal button {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+
+    .modal.active {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="left">
+      <a href="../index.html" class="logo">HedRed</a>
+    </div>
+    <div style="display: flex; align-items: center; gap: 1rem;">
+      <button class="login-btn">Войти</button>
+      <div class="menu-btn" onclick="toggleMenu()">☰</div>
+    </div>
+  </header>
+  <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+  <nav class="side-menu" id="sideMenu">
+    <div class="close-btn" onclick="toggleMenu()">×</div>
+    <a href="../Calendar/index.html">Календарь</a>
+    <a href="../Notif/index.html">Уведомления</a>
+    <a href="../Rem/index.html">Напоминания</a>
+    <a href="../Achiev/index.html">Достижения</a>
+    <a href="../Set/index.html">Настройки</a>
+  </nav>
+
+  <div class="calendar">
+    <div class="calendar-header">
+      <button onclick="prevMonth()">←</button>
+      <h2 id="monthYear"></h2>
+      <button onclick="nextMonth()">→</button>
+    </div>
+    <div class="calendar-grid" id="calendarDays"></div>
+  </div>
+
+  <div class="modal" id="eventModal">
+    <h3>Добавить задачу</h3>
+    <input type="text" id="eventTitle" placeholder="Название задачи">
+    <textarea id="eventDesc" rows="3" placeholder="Описание (необязательно)"></textarea>
+    <button onclick="saveEvent()">Сохранить</button>
+  </div>
+
+  <script src="../script.js"></script>
+  <script>
+    const calendarDays = document.getElementById("calendarDays");
+    const monthYear = document.getElementById("monthYear");
+    const modal = document.getElementById("eventModal");
+    let selectedDate;
+    let current = new Date();
+    const events = {};
+
+    const dayNames = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
+
+    function renderCalendar(date) {
+      calendarDays.innerHTML = "";
+      monthYear.textContent = date.toLocaleDateString("ru-RU", { month: "long", year: "numeric" });
+
+      dayNames.forEach(name => {
+        const div = document.createElement("div");
+        div.className = "day-name";
+        div.textContent = name;
+        calendarDays.appendChild(div);
+      });
+
+      const year = date.getFullYear();
+      const month = date.getMonth();
+      const firstDay = new Date(year, month, 1);
+      const lastDay = new Date(year, month + 1, 0);
+
+      let skip = (firstDay.getDay() + 6) % 7;
+
+      for (let i = 0; i < skip; i++) {
+        calendarDays.appendChild(document.createElement("div"));
+      }
+
+      for (let day = 1; day <= lastDay.getDate(); day++) {
+        const div = document.createElement("div");
+        div.className = "day";
+        const thisDate = `${year}-${month + 1}-${day}`;
+
+        if (new Date().toDateString() === new Date(year, month, day).toDateString()) {
+          div.classList.add("today");
+        }
+
+        div.textContent = day;
+        div.onclick = () => openModal(thisDate);
+
+        if (events[thisDate]) {
+          const dot = document.createElement("div");
+          dot.className = "dot";
+          div.appendChild(dot);
+        }
+
+        calendarDays.appendChild(div);
+      }
+    }
+
+    function prevMonth() {
+      current.setMonth(current.getMonth() - 1);
+      renderCalendar(current);
+    }
+
+    function nextMonth() {
+      current.setMonth(current.getMonth() + 1);
+      renderCalendar(current);
+    }
+
+    function openModal(dateStr) {
+      selectedDate = dateStr;
+      modal.classList.add("active");
+    }
+
+    function saveEvent() {
+      const title = document.getElementById("eventTitle").value;
+      if (!title) return;
+      events[selectedDate] = title;
+      modal.classList.remove("active");
+      renderCalendar(current);
+    }
+
+    renderCalendar(current);
+  </script>
+</body>
+</html>
