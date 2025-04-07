@@ -1,1 +1,151 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Уведомления | HedRed</title>
+  <style>
+    /* Ваши общие стили */
+    :root {
+      --main-bg: #f7f9fb;
+      --menu-bg: #ffffff;
+      --text-color: #000000;
+      --accent: #007aff;
+      --shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+      --border-radius: 20px;
+    }
 
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: var(--main-bg);
+      color: var(--text-color);
+      margin: 0;
+      padding: 0;
+    }
+
+    h1 {
+      text-align: center;
+      margin: 1rem;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: auto;
+      padding: 1rem;
+      background: white;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+    }
+
+    .notification-toggle {
+      margin: 1rem 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .notification-toggle button {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 0.7rem 1.2rem;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+    
+    .task-item {
+      padding: 0.5rem;
+      border-left: 5px solid var(--accent);
+      margin: 0.5rem 0;
+      background: #f0f0f0;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Уведомления</h1>
+    
+    <!-- Переключатель уведомлений -->
+    <div class="notification-toggle">
+      <span>Включить уведомления</span>
+      <button id="toggleNotificationsBtn">Включить</button>
+    </div>
+
+    <!-- Список задач с уведомлениями -->
+    <div class="task-list" id="taskList">
+      <!-- Здесь будут отображаться задачи -->
+    </div>
+  </div>
+
+  <script>
+    // Проверка разрешения на уведомления
+    let notificationsEnabled = false;
+    const toggleNotificationsBtn = document.getElementById('toggleNotificationsBtn');
+    const taskList = document.getElementById('taskList');
+
+    // Функция для запроса разрешения на уведомления
+    function requestNotificationPermission() {
+      if ("Notification" in window) {
+        Notification.requestPermission().then(permission => {
+          if (permission === "granted") {
+            notificationsEnabled = true;
+            toggleNotificationsBtn.textContent = 'Выключить';
+            toggleNotificationsBtn.style.backgroundColor = '#f44336'; // Красный
+          } else {
+            notificationsEnabled = false;
+          }
+        });
+      } else {
+        alert('Ваш браузер не поддерживает уведомления');
+      }
+    }
+
+    // Обработчик кнопки включения/выключения уведомлений
+    toggleNotificationsBtn.addEventListener('click', () => {
+      if (notificationsEnabled) {
+        notificationsEnabled = false;
+        toggleNotificationsBtn.textContent = 'Включить';
+        toggleNotificationsBtn.style.backgroundColor = '#007aff'; // Синий
+      } else {
+        requestNotificationPermission();
+      }
+    });
+
+    // Функция для отправки уведомлений
+    function sendNotification(task) {
+      if (notificationsEnabled && "Notification" in window) {
+        new Notification("Напоминание", {
+          body: `Задача: ${task.title}, Срок: ${task.date}`,
+        });
+      }
+    }
+
+    // Пример списка задач с уведомлениями
+    const tasks = [
+      { title: "Задача 1", date: "2025-04-10", description: "Описание задачи 1" },
+      { title: "Задача 2", date: "2025-04-12", description: "Описание задачи 2" },
+    ];
+
+    // Рендеринг задач
+    function renderTasks() {
+      taskList.innerHTML = '';
+      tasks.forEach(task => {
+        const div = document.createElement('div');
+        div.className = 'task-item';
+        div.innerHTML = `<strong>${task.title}</strong><br><small>${task.date}</small><p>${task.description}</p>`;
+        
+        // Добавляем задачу в список
+        taskList.appendChild(div);
+
+        // Отправляем уведомление, если включено
+        sendNotification(task);
+      });
+    }
+
+    // Инициализация
+    renderTasks();
+
+  </script>
+</body>
+</html>
