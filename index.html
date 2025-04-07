@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>HedRed</title>
   <style>
     :root {
@@ -19,19 +19,29 @@
       padding: 0;
       box-sizing: border-box;
       font-family: 'Segoe UI', sans-serif;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
     }
 
     body {
       background-color: var(--main-bg);
       color: var(--text-color);
       min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
     }
 
     header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 1.2rem 1.5rem;
+      padding: 1rem 1.2rem;
       background-color: var(--menu-bg);
       box-shadow: var(--shadow);
       position: sticky;
@@ -39,20 +49,38 @@
       z-index: 1001;
     }
 
+    .left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
     .logo {
-      font-size: 1.7rem;
+      font-size: 1.5rem;
       font-weight: 600;
       color: var(--accent);
-    }
-
-    .menu-icon {
-      font-size: 1.7rem;
       cursor: pointer;
-      transition: transform 0.2s ease;
     }
 
-    .menu-icon:hover {
-      transform: scale(1.1);
+    .menu-btn {
+      font-size: 1.6rem;
+      cursor: pointer;
+      padding: 0.3rem 0.6rem;
+    }
+
+    .login-btn {
+      padding: 0.4rem 0.9rem;
+      background-color: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .login-btn:hover {
+      background-color: #005fcc;
     }
 
     .side-menu {
@@ -78,10 +106,8 @@
       display: block;
       padding: 16px 24px;
       font-size: 1.1rem;
-      text-decoration: none;
       color: var(--text-color);
       border-bottom: 1px solid #eee;
-      transition: background 0.3s;
     }
 
     .side-menu a:hover {
@@ -106,7 +132,7 @@
       background: rgba(0, 0, 0, 0.3);
       opacity: 0;
       visibility: hidden;
-      transition: opacity 0.3s ease;
+      transition: 0.3s ease;
       z-index: 1000;
     }
 
@@ -117,17 +143,17 @@
 
     @media (max-width: 600px) {
       .logo {
-        font-size: 1.4rem;
+        font-size: 1.3rem;
+      }
+
+      .login-btn {
+        font-size: 0.9rem;
+        padding: 0.3rem 0.8rem;
       }
 
       .side-menu {
         width: 100%;
         border-radius: 0;
-      }
-
-      .side-menu a {
-        font-size: 1rem;
-        padding: 14px 20px;
       }
     }
   </style>
@@ -135,8 +161,13 @@
 <body>
 
   <header>
-    <div class="logo">HedRed</div>
-    <div class="menu-icon" onclick="toggleMenu()">☰</div>
+    <div class="left">
+      <a href="index.html" class="logo">HedRed</a>
+    </div>
+    <div style="display: flex; align-items: center; gap: 1rem;">
+      <button class="login-btn">Войти</button>
+      <div class="menu-btn" onclick="toggleMenu()">☰</div>
+    </div>
   </header>
 
   <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
@@ -153,10 +184,8 @@
 
   <script>
     function toggleMenu() {
-      const menu = document.getElementById('sideMenu');
-      const overlay = document.getElementById('overlay');
-      menu.classList.toggle('active');
-      overlay.classList.toggle('active');
+      document.getElementById('sideMenu').classList.toggle('active');
+      document.getElementById('overlay').classList.toggle('active');
     }
   </script>
 
