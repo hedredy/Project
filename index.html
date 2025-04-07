@@ -2,37 +2,57 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Сайт в разработке</title>
-    <style>
-        
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-            background-color: #000;
-            color: #fff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            text-align: center;
-            user-select: none;
-        }
-
-        h1 {
-            font-size: 5rem;
-        }
-
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 3rem;
-            }
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Сайт для повышения продуктивности</title>
 </head>
 <body>
-    <h1>Сайт в разработке</h1>
+
+    <h1>Добро пожаловать на сайт для повышения продуктивности!</h1>
+
+    <!-- Виджет авторизации через Telegram -->
+    <script async src="https://telegram.org/js/telegram-widget.js?22"
+        data-telegram-login="hedredregisterbot"
+        data-size="large"
+        data-userpic="false"
+        data-auth-url="https://yourdomain.com/auth"
+        data-request-access="write">
+    </script>
+
+    <!-- Страница приветствия после успешной авторизации -->
+    <div id="welcome-message" style="display:none;">
+        <h2>Привет, <span id="user-name"></span>!</h2>
+        <img id="user-avatar" src="" alt="Аватар пользователя" style="width: 100px; height: 100px;">
+        <p>Добро пожаловать на сайт! Вы можете начать добавлять задачи, следить за продуктивностью и получать уведомления.</p>
+    </div>
+
+    <!-- Форма для задач (появится после авторизации) -->
+    <div id="task-form" style="display:none;">
+        <h3>Добавить задачу</h3>
+        <form action="/submit_task" method="POST">
+            <label for="task-name">Название задачи:</label>
+            <input type="text" id="task-name" name="task-name" required>
+            <label for="task-due-date">Срок выполнения:</label>
+            <input type="date" id="task-due-date" name="task-due-date" required>
+            <input type="submit" value="Добавить задачу">
+        </form>
+    </div>
+
+    <script>
+        // Псевдокод для получения данных пользователя после успешной авторизации
+        // Подтверждение данных после авторизации через Telegram
+        function authenticateUser(data) {
+            if (data.ok) {
+                // Данные пользователя
+                let userData = data.result;
+                document.getElementById('user-name').textContent = userData.username;
+                document.getElementById('user-avatar').src = userData.photo_url;
+
+                // Отображаем приветственное сообщение и форму задач
+                document.getElementById('welcome-message').style.display = 'block';
+                document.getElementById('task-form').style.display = 'block';
+            }
+        }
+    </script>
+
 </body>
 </html>
