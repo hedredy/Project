@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html lang="ru">
+<!DOCTYPE html><html lang="ru">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -12,194 +11,276 @@
       --accent: #007aff;
       --shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
       --border-radius: 20px;
-    }
+    }body {
+  font-family: 'Segoe UI', sans-serif;
+  background-color: var(--main-bg);
+  color: var(--text-color);
+  margin: 0;
+  padding: 0;
+}
 
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: var(--main-bg);
-      color: var(--text-color);
-      margin: 0;
-      padding: 0;
-    }
+h1 {
+  text-align: center;
+  margin: 1rem;
+}
 
-    h1 {
-      text-align: center;
-      margin: 1rem;
-    }
+.calendar-container {
+  max-width: 900px;
+  margin: auto;
+  padding: 1rem;
+  background: white;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+}
 
-    .calendar-container {
-      max-width: 800px;
-      margin: auto;
-      padding: 1rem;
-      background: white;
-      border-radius: var(--border-radius);
-      box-shadow: var(--shadow);
-    }
+.calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
 
-    .task-list {
-      margin-top: 1rem;
-    }
+.calendar-day {
+  background: #eaeaea;
+  border-radius: 10px;
+  padding: 0.5rem;
+  text-align: center;
+  cursor: pointer;
+}
 
-    .task-item {
-      padding: 0.5rem;
-      border-left: 5px solid var(--accent);
-      margin: 0.5rem 0;
-      background: #f0f0f0;
-      border-radius: 10px;
-    }
+.calendar-day.today {
+  background: var(--accent);
+  color: white;
+}
 
-    .open-modal-btn {
-      background: var(--accent);
-      color: white;
-      border: none;
-      padding: 0.7rem 1.2rem;
-      border-radius: 12px;
-      cursor: pointer;
-      display: block;
-      margin: 1rem auto;
-    }
+.task-list {
+  margin-top: 2rem;
+}
 
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.4);
-      justify-content: center;
-      align-items: center;
-      z-index: 999;
-    }
+.task-item {
+  padding: 1rem;
+  border-left: 5px solid var(--accent);
+  margin: 0.5rem 0;
+  background: #f0f0f0;
+  border-radius: 10px;
+  position: relative;
+}
 
-    .modal.active {
-      display: flex;
-    }
+.task-item.done {
+  opacity: 0.5;
+  text-decoration: line-through;
+}
 
-    .modal-content {
-      background: white;
-      padding: 2rem;
-      border-radius: var(--border-radius);
-      width: 90%;
-      max-width: 400px;
-      position: relative;
-      animation: fadeIn 0.3s ease;
-    }
+.task-controls {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  gap: 0.5rem;
+}
 
-    @keyframes fadeIn {
-      from { transform: scale(0.9); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
-    }
+.task-controls button {
+  border: none;
+  background: none;
+  cursor: pointer;
+}
 
-    .modal-content input,
-    .modal-content select,
-    .modal-content textarea {
-      width: 100%;
-      margin-bottom: 1rem;
-      padding: 0.5rem;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-    }
+.open-modal-btn {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 0.7rem 1.2rem;
+  border-radius: 12px;
+  cursor: pointer;
+  display: block;
+  margin: 1rem auto;
+}
 
-    .close-modal {
-      position: absolute;
-      top: 10px; right: 15px;
-      font-size: 1.5rem;
-      cursor: pointer;
-    }
+.modal {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
 
-    .importance-high { border-left-color: red; }
-    .importance-medium { border-left-color: orange; }
-    .importance-low { border-left-color: green; }
+.modal.active {
+  display: flex;
+}
+
+.modal-content {
+  background: white;
+  padding: 2rem;
+  border-radius: var(--border-radius);
+  width: 90%;
+  max-width: 400px;
+  position: relative;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.modal-content input,
+.modal-content select,
+.modal-content textarea {
+  width: 100%;
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.close-modal {
+  position: absolute;
+  top: 10px; right: 15px;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
   </style>
 </head>
 <body>
   <div class="calendar-container">
     <h1>Календарь</h1>
+    <div id="calendar" class="calendar"></div>
     <button class="open-modal-btn" onclick="openModal()">Добавить задачу</button>
     <div class="task-list" id="taskList"></div>
-  </div>
-
-  <div class="modal" id="taskModal">
+  </div>  <div class="modal" id="taskModal">
     <div class="modal-content">
       <span class="close-modal" onclick="closeModal()">&times;</span>
-      <h3>Новая задача</h3>
+      <h3 id="modalTitle">Новая задача</h3>
       <input type="text" id="taskTitle" placeholder="Название задачи" />
       <textarea id="taskDesc" placeholder="Описание"></textarea>
-      <input type="date" id="taskDate" min="" />
+      <input type="date" id="taskDate" />
       <select id="taskImportance">
         <option value="low">Низкая важность</option>
         <option value="medium">Средняя важность</option>
         <option value="high">Высокая важность</option>
       </select>
+      <label><input type="checkbox" id="taskDone" /> Выполнено</label>
       <button onclick="saveTask()">Сохранить</button>
     </div>
-  </div>
-
-  <script>
+  </div>  <script>
     const modal = document.getElementById('taskModal');
     const taskList = document.getElementById('taskList');
     const taskDate = document.getElementById('taskDate');
+    const calendarEl = document.getElementById('calendar');
 
-    // Установка минимальной даты (сегодня)
-    const today = new Date().toISOString().split('T')[0];
-    taskDate.setAttribute('min', today);
+    let editIndex = null;
 
-    function openModal() {
+    function openModal(index = null) {
       modal.classList.add('active');
+      if (index !== null) {
+        const task = getTasks()[index];
+        document.getElementById('taskTitle').value = task.title;
+        document.getElementById('taskDesc').value = task.desc;
+        document.getElementById('taskDate').value = task.date;
+        document.getElementById('taskImportance').value = task.importance;
+        document.getElementById('taskDone').checked = task.done;
+        editIndex = index;
+      } else {
+        document.getElementById('taskTitle').value = '';
+        document.getElementById('taskDesc').value = '';
+        document.getElementById('taskDate').value = '';
+        document.getElementById('taskImportance').value = 'low';
+        document.getElementById('taskDone').checked = false;
+        editIndex = null;
+      }
     }
 
     function closeModal() {
       modal.classList.remove('active');
     }
 
+    function getTasks() {
+      return JSON.parse(localStorage.getItem('tasks')) || [];
+    }
+
+    function saveTasks(tasks) {
+      localStorage.setItem('tasks', JSON.stringify(tasks));
+    }
+
     function saveTask() {
       const title = document.getElementById('taskTitle').value.trim();
       const desc = document.getElementById('taskDesc').value.trim();
-      const date = taskDate.value;
+      const date = document.getElementById('taskDate').value;
       const importance = document.getElementById('taskImportance').value;
+      const done = document.getElementById('taskDone').checked;
       if (!title || !date) return;
 
-      const task = { title, desc, date, importance };
-      const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-      tasks.push(task);
-      localStorage.setItem('tasks', JSON.stringify(tasks));
+      const task = { title, desc, date, importance, done };
+      const tasks = getTasks();
+      if (editIndex !== null) {
+        tasks[editIndex] = task;
+      } else {
+        tasks.push(task);
+      }
+      saveTasks(tasks);
       renderTasks();
       closeModal();
+    }
 
-      document.getElementById('taskTitle').value = '';
-      document.getElementById('taskDesc').value = '';
-      taskDate.value = '';
-      document.getElementById('taskImportance').value = 'low';
+    function deleteTask(index) {
+      const tasks = getTasks();
+      tasks.splice(index, 1);
+      saveTasks(tasks);
+      renderTasks();
+    }
+
+    function toggleDone(index) {
+      const tasks = getTasks();
+      tasks[index].done = !tasks[index].done;
+      saveTasks(tasks);
+      renderTasks();
+    }
+
+    function renderCalendar() {
+      const now = new Date();
+      const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+      calendarEl.innerHTML = '';
+      for (let i = 1; i <= daysInMonth; i++) {
+        const d = new Date(now.getFullYear(), now.getMonth(), i);
+        const el = document.createElement('div');
+        el.className = 'calendar-day' + (i === now.getDate() ? ' today' : '');
+        el.textContent = i;
+        el.onclick = () => {
+          document.getElementById('taskDate').value = d.toISOString().split('T')[0];
+          openModal();
+        };
+        calendarEl.appendChild(el);
+      }
     }
 
     function renderTasks() {
       taskList.innerHTML = '';
-      const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-      tasks.forEach(task => {
+      const tasks = getTasks().sort((a, b) => a.date.localeCompare(b.date));
+      tasks.forEach((task, i) => {
         const div = document.createElement('div');
-        div.className = `task-item importance-${task.importance}`;
-        div.innerHTML = `<strong>${task.title}</strong><br><small>${task.date}</small><p>${task.desc}</p>`;
+        div.className = `task-item importance-${task.importance} ${task.done ? 'done' : ''}`;
+        const now = new Date();
+        const diff = Math.ceil((new Date(task.date) - now) / (1000 * 60 * 60 * 24));
+        let timeLeft = diff > 0 ? `Осталось: ${diff} дн.` : diff === 0 ? 'Срок сегодня' : 'Просрочено';
+        div.innerHTML = `
+          <strong>${task.title}</strong><br>
+          <small>${task.date} | ${timeLeft}</small>
+          <p>${task.desc}</p>
+          <div class="task-controls">
+            <button onclick="openModal(${i})">✏️</button>
+            <button onclick="deleteTask(${i})">🗑️</button>
+            <button onclick="toggleDone(${i})">✔️</button>
+          </div>
+        `;
         taskList.appendChild(div);
       });
     }
 
+    renderCalendar();
     renderTasks();
-
-    // Уведомление (пример)
-    if ("Notification" in window && Notification.permission !== "denied") {
-      Notification.requestPermission().then(permission => {
-        if (permission === "granted") {
-          const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-          const now = new Date().toISOString().split('T')[0];
-          tasks.forEach(task => {
-            if (task.date === now) {
-              new Notification("Напоминание", {
-                body: `Сегодня: ${task.title}`
-              });
-            }
-          });
-        }
-      });
-    }
-  </script>
-</body>
+  </script></body>
 </html>
