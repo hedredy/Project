@@ -1,154 +1,143 @@
 :root {
-    --main-bg: #f7f9fb;
-    --menu-bg: #ffffff;
-    --text-color: #333;
-    --accent: #007aff;
-    --shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
-    --border-radius: 20px;
+  --main-bg: #f7f9fb;
+  --menu-bg: #ffffff;
+  --text-color: #000000;
+  --accent: #007aff;
+  --shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+  --border-radius: 20px;
 }
 
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Segoe UI', sans-serif;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', sans-serif;
+  user-select: none;
 }
 
 body {
-    background-color: var(--main-bg);
-    color: var(--text-color);
-    min-height: 100vh;
-    overflow-x: hidden;
+  background-color: var(--main-bg);
+  color: var(--text-color);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
 }
 
 header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem 1.2rem;
-    background-color: var(--menu-bg);
-    box-shadow: var(--shadow);
-    position: sticky;
-    top: 0;
-    z-index: 1001;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.2rem;
+  background-color: var(--menu-bg);
+  box-shadow: var(--shadow);
+  position: sticky;
+  top: 0;
+  z-index: 1001;
 }
 
 .left {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 .logo {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: var(--accent);
-    cursor: pointer;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--accent);
+  cursor: pointer;
 }
 
 .menu-btn {
-    font-size: 1.6rem;
-    cursor: pointer;
-    padding: 0.3rem 0.6rem;
+  font-size: 1.6rem;
+  cursor: pointer;
+  padding: 0.3rem 0.6rem;
+  color: var(--text-color);
 }
 
 .login-btn {
-    padding: 0.4rem 0.9rem;
-    background-color: var(--accent);
-    color: white;
-    border: none;
-    border-radius: 12px;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: 0.2s ease;
+  padding: 0.4rem 0.9rem;
+  background-color: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: 0.2s ease;
 }
 
 .login-btn:hover {
-    background-color: #005fcc;
+  background-color: #005fcc;
 }
 
 .side-menu {
-    position: fixed;
-    top: 0;
-    right: -100%;
-    width: 50vw; /* Меню открывается только на половину экрана */
-    height: 100%;
-    background-color: var(--menu-bg);
-    box-shadow: -4px 0 12px rgba(0, 0, 0, 0.1);
-    border-top-left-radius: var(--border-radius);
-    border-bottom-left-radius: var(--border-radius);
-    transition: right 0.3s ease;
-    z-index: 1002;
-    padding-top: 60px;
+  position: fixed;
+  top: 0;
+  right: -100%;
+  width: 280px;
+  height: 100%;
+  background-color: var(--menu-bg);
+  box-shadow: -4px 0 12px rgba(0, 0, 0, 0.1);
+  border-top-left-radius: var(--border-radius);
+  border-bottom-left-radius: var(--border-radius);
+  transition: right 0.3s ease;
+  z-index: 1002;
+  padding-top: 60px;
 }
 
 .side-menu.active {
-    right: 0;
+  right: 0;
 }
 
 .side-menu a {
-    display: block;
-    padding: 16px 24px;
-    font-size: 1.1rem;
-    color: var(--text-color);
-    border-bottom: 1px solid #eee;
+  display: block;
+  padding: 16px 24px;
+  font-size: 1.1rem;
+  color: var(--text-color);
+  border-bottom: 1px solid #eee;
 }
 
 .side-menu a:hover {
-    background-color: #f0f0f0;
+  background-color: #f0f0f0;
 }
 
 .close-btn {
-    position: absolute;
-    top: 14px;
-    right: 20px;
-    font-size: 1.5rem;
-    cursor: pointer;
-    color: #888;
+  position: absolute;
+  top: 14px;
+  right: 20px;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #888;
 }
 
 .overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.3);
-    opacity: 0;
-    visibility: hidden;
-    transition: 0.3s ease;
-    z-index: 1000;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  visibility: hidden;
+  transition: 0.3s ease;
+  z-index: 1000;
 }
 
 .overlay.active {
-    opacity: 1;
-    visibility: visible;
+  opacity: 1;
+  visibility: visible;
 }
 
-.content {
-    padding: 20px;
-    text-align: center;
-}
+@media (max-width: 768px) {
+  .side-menu {
+    width: 50%;
+  }
 
-.content ul {
-    list-style: none;
-    padding: 0;
-}
-
-.content ul li {
-    margin: 10px 0;
-}
-
-.content ul li a {
-    color: var(--accent);
-    text-decoration: none;
-    font-size: 1.2rem;
-}
-
-.content ul li a:hover {
-    text-decoration: underline;
+  .menu-btn {
+    display: block;
+  }
 }
