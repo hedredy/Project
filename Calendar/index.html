@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Календарь | HedRed</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Календарь</title>
   <style>
     :root {
       --main-bg: #f7f9fb;
@@ -12,194 +12,350 @@
       --accent: #007aff;
       --shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
       --border-radius: 20px;
+      --error-color: #e74c3c;
+      --success-color: #2ecc71;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', sans-serif;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
     }
 
     body {
-      font-family: 'Segoe UI', sans-serif;
       background-color: var(--main-bg);
       color: var(--text-color);
-      margin: 0;
-      padding: 0;
+      font-size: 16px;
+      min-height: 100vh;
     }
 
-    h1 {
-      text-align: center;
-      margin: 1rem;
+    a {
+      text-decoration: none;
+      color: inherit;
     }
 
-    .calendar-container {
-      max-width: 800px;
-      margin: auto;
-      padding: 1rem;
-      background: white;
-      border-radius: var(--border-radius);
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 1.2rem;
+      background-color: var(--menu-bg);
       box-shadow: var(--shadow);
+      position: sticky;
+      top: 0;
+      z-index: 1001;
     }
 
-    .task-list {
-      margin-top: 1rem;
+    .left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
     }
 
-    .task-item {
-      padding: 0.5rem;
-      border-left: 5px solid var(--accent);
-      margin: 0.5rem 0;
-      background: #f0f0f0;
-      border-radius: 10px;
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--accent);
+      cursor: pointer;
     }
 
-    .open-modal-btn {
-      background: var(--accent);
+    .menu-btn {
+      font-size: 1.6rem;
+      cursor: pointer;
+      padding: 0.3rem 0.6rem;
+      color: var(--text-color);
+    }
+
+    .login-btn {
+      padding: 0.4rem 0.9rem;
+      background-color: var(--accent);
       color: white;
       border: none;
-      padding: 0.7rem 1.2rem;
       border-radius: 12px;
+      font-size: 1rem;
       cursor: pointer;
-      display: block;
-      margin: 1rem auto;
+      transition: 0.2s ease;
     }
 
-    .modal {
-      display: none;
+    .login-btn:hover {
+      background-color: #005fcc;
+    }
+
+    .side-menu {
       position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.4);
-      justify-content: center;
-      align-items: center;
-      z-index: 999;
+      top: 0;
+      right: -100%;
+      width: 280px;
+      height: 100%;
+      background-color: var(--menu-bg);
+      box-shadow: -4px 0 12px rgba(0, 0, 0, 0.1);
+      border-top-left-radius: var(--border-radius);
+      border-bottom-left-radius: var(--border-radius);
+      transition: right 0.3s ease;
+      z-index: 1002;
+      padding-top: 60px;
     }
 
-    .modal.active {
-      display: flex;
+    .side-menu.active {
+      right: 0;
     }
 
-    .modal-content {
-      background: white;
-      padding: 2rem;
-      border-radius: var(--border-radius);
-      width: 90%;
-      max-width: 400px;
-      position: relative;
-      animation: fadeIn 0.3s ease;
+    .side-menu a {
+      display: block;
+      padding: 16px 24px;
+      font-size: 1.1rem;
+      color: var(--text-color);
+      border-bottom: 1px solid #eee;
     }
 
-    @keyframes fadeIn {
-      from { transform: scale(0.9); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
+    .side-menu a:hover {
+      background-color: #f0f0f0;
     }
 
-    .modal-content input,
-    .modal-content select,
-    .modal-content textarea {
+    .close-btn {
+      position: absolute;
+      top: 14px;
+      right: 20px;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #888;
+    }
+
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
       width: 100%;
-      margin-bottom: 1rem;
-      padding: 0.5rem;
-      border-radius: 8px;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.3);
+      opacity: 0;
+      visibility: hidden;
+      transition: 0.3s ease;
+      z-index: 1000;
+    }
+
+    .overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: #fff;
+      padding: 20px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      width: 300px;
+      display: none;
+    }
+
+    .popup.active {
+      display: block;
+    }
+
+    .popup-header {
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .popup-body {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .popup input {
+      margin-bottom: 10px;
+      padding: 10px;
+      border-radius: 5px;
       border: 1px solid #ccc;
     }
 
-    .close-modal {
-      position: absolute;
-      top: 10px; right: 15px;
-      font-size: 1.5rem;
+    .popup button {
+      padding: 10px;
+      background-color: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 5px;
       cursor: pointer;
     }
 
-    .importance-high { border-left-color: red; }
-    .importance-medium { border-left-color: orange; }
-    .importance-low { border-left-color: green; }
+    .popup button:hover {
+      background-color: #005fcc;
+    }
+
+    .task-list {
+      padding: 20px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .task-item {
+      padding: 10px;
+      border: 1px solid #eee;
+      margin-bottom: 10px;
+      border-radius: 5px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .task-item button {
+      background-color: #e74c3c;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 5px 10px;
+      cursor: pointer;
+    }
+
+    .task-item button:hover {
+      background-color: #c0392b;
+    }
+
+    .task-item .edit-btn {
+      background-color: #f39c12;
+    }
+
+    .task-item .edit-btn:hover {
+      background-color: #e67e22;
+    }
+
+    @media (max-width: 768px) {
+      .side-menu {
+        width: 50%;
+      }
+    }
+
   </style>
 </head>
 <body>
-  <div class="calendar-container">
-    <h1>Календарь</h1>
-    <button class="open-modal-btn" onclick="openModal()">Добавить задачу</button>
-    <div class="task-list" id="taskList"></div>
-  </div>
 
-  <div class="modal" id="taskModal">
-    <div class="modal-content">
-      <span class="close-modal" onclick="closeModal()">&times;</span>
-      <h3>Новая задача</h3>
+  <header>
+    <div class="left">
+      <a href="index.html" class="logo">HedRed</a>
+    </div>
+    <div style="display: flex; align-items: center; gap: 1rem;">
+      <button class="login-btn">Войти</button>
+      <div class="menu-btn" onclick="toggleMenu()">☰</div>
+    </div>
+  </header>
+
+  <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+
+  <nav class="side-menu" id="sideMenu">
+    <div class="close-btn" onclick="toggleMenu()">×</div>
+    <a href="calendar.html">Календарь</a>
+    <a href="notif.html">Уведомления</a>
+    <a href="rem.html">Напоминания</a>
+    <a href="achiev.html">Достижения</a>
+    <a href="set.html">Настройки</a>
+  </nav>
+
+  <div class="popup" id="popup">
+    <div class="popup-header">Добавить задачу</div>
+    <div class="popup-body">
       <input type="text" id="taskTitle" placeholder="Название задачи" />
-      <textarea id="taskDesc" placeholder="Описание"></textarea>
-      <input type="date" id="taskDate" min="" />
-      <select id="taskImportance">
-        <option value="low">Низкая важность</option>
-        <option value="medium">Средняя важность</option>
-        <option value="high">Высокая важность</option>
-      </select>
+      <input type="datetime-local" id="taskDate" />
       <button onclick="saveTask()">Сохранить</button>
     </div>
   </div>
 
+  <div class="task-list" id="taskList">
+    <!-- Задачи будут отображаться здесь -->
+  </div>
+
   <script>
-    const modal = document.getElementById('taskModal');
-    const taskList = document.getElementById('taskList');
-    const taskDate = document.getElementById('taskDate');
-
-    // Установка минимальной даты (сегодня)
-    const today = new Date().toISOString().split('T')[0];
-    taskDate.setAttribute('min', today);
-
-    function openModal() {
-      modal.classList.add('active');
+    function toggleMenu() {
+      document.getElementById('sideMenu').classList.toggle('active');
+      document.getElementById('overlay').classList.toggle('active');
     }
 
-    function closeModal() {
-      modal.classList.remove('active');
+    let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+
+    function renderTasks() {
+      const taskList = document.getElementById('taskList');
+      taskList.innerHTML = '';
+      tasks.forEach((task, index) => {
+        const taskElement = document.createElement('div');
+        taskElement.classList.add('task-item');
+        taskElement.innerHTML = `
+          <span>${task.title} — ${task.date}</span>
+          <div>
+            <button class="edit-btn" onclick="editTask(${index})">Редактировать</button>
+            <button onclick="deleteTask(${index})">Удалить</button>
+          </div>
+        `;
+        taskList.appendChild(taskElement);
+      });
+    }
+
+    function openPopup() {
+      document.getElementById('popup').classList.add('active');
+    }
+
+    function closePopup() {
+      document.getElementById('popup').classList.remove('active');
+      document.getElementById('taskTitle').value = '';
+      document.getElementById('taskDate').value = '';
     }
 
     function saveTask() {
-      const title = document.getElementById('taskTitle').value.trim();
-      const desc = document.getElementById('taskDesc').value.trim();
-      const date = taskDate.value;
-      const importance = document.getElementById('taskImportance').value;
-      if (!title || !date) return;
+      const taskTitle = document.getElementById('taskTitle').value;
+      const taskDate = document.getElementById('taskDate').value;
 
-      const task = { title, desc, date, importance };
-      const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+      if (!taskTitle || !taskDate) {
+        alert('Пожалуйста, заполните все поля');
+        return;
+      }
+
+      const task = {
+        title: taskTitle,
+        date: taskDate,
+      };
+
       tasks.push(task);
       localStorage.setItem('tasks', JSON.stringify(tasks));
+      closePopup();
       renderTasks();
-      closeModal();
-
-      document.getElementById('taskTitle').value = '';
-      document.getElementById('taskDesc').value = '';
-      taskDate.value = '';
-      document.getElementById('taskImportance').value = 'low';
+      showNotification('Задача добавлена!', 'success');
     }
 
-    function renderTasks() {
-      taskList.innerHTML = '';
-      const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-      tasks.forEach(task => {
-        const div = document.createElement('div');
-        div.className = `task-item importance-${task.importance}`;
-        div.innerHTML = `<strong>${task.title}</strong><br><small>${task.date}</small><p>${task.desc}</p>`;
-        taskList.appendChild(div);
-      });
+    function deleteTask(index) {
+      tasks.splice(index, 1);
+      localStorage.setItem('tasks', JSON.stringify(tasks));
+      renderTasks();
+      showNotification('Задача удалена!', 'error');
+    }
+
+    function editTask(index) {
+      const task = tasks[index];
+      document.getElementById('taskTitle').value = task.title;
+      document.getElementById('taskDate').value = task.date;
+      openPopup();
+      tasks.splice(index, 1);
+    }
+
+    function showNotification(message, type) {
+      const notification = document.createElement('div');
+      notification.classList.add('notification');
+      notification.style.backgroundColor = type === 'success' ? 'var(--success-color)' : 'var(--error-color)';
+      notification.innerText = message;
+      document.body.appendChild(notification);
+
+      setTimeout(() => {
+        notification.remove();
+      }, 3000);
     }
 
     renderTasks();
-
-    // Уведомление (пример)
-    if ("Notification" in window && Notification.permission !== "denied") {
-      Notification.requestPermission().then(permission => {
-        if (permission === "granted") {
-          const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-          const now = new Date().toISOString().split('T')[0];
-          tasks.forEach(task => {
-            if (task.date === now) {
-              new Notification("Напоминание", {
-                body: `Сегодня: ${task.title}`
-              });
-            }
-          });
-        }
-      });
-    }
   </script>
+
 </body>
 </html>
