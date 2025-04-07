@@ -8,7 +8,7 @@
     :root {
       --main-bg: #f7f9fb;
       --menu-bg: #ffffff;
-      --text-color: #333;
+      --text-color: #000000; /* Черный цвет текста */
       --accent: #007aff;
       --shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
       --border-radius: 20px;
@@ -86,8 +86,8 @@
     .side-menu {
       position: fixed;
       top: 0;
-      right: -100%;
-      width: 280px;
+      right: -50%; /* Меню открывается только наполовину */
+      width: 50%; /* Меню занимает 50% экрана */
       height: 100%;
       background-color: var(--menu-bg);
       box-shadow: -4px 0 12px rgba(0, 0, 0, 0.1);
@@ -152,7 +152,7 @@
       }
 
       .side-menu {
-        width: 100%;
+        width: 100%; /* Для мобильных устройств меню будет занимать всю ширину */
         border-radius: 0;
       }
     }
