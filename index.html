@@ -2,53 +2,71 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>HedRed</title>
   <style>
-    /* Общие стили */
+    :root {
+      --main-bg: #f7f9fb;
+      --menu-bg: #ffffff;
+      --text-color: #333;
+      --accent: #007aff;
+      --shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+      --border-radius: 20px;
+    }
+
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
-      font-family: 'Arial', sans-serif;
+      font-family: 'Segoe UI', sans-serif;
     }
 
     body {
-      background-color: #f5f5f5;
-      color: #333;
+      background-color: var(--main-bg);
+      color: var(--text-color);
+      min-height: 100vh;
     }
 
-    /* Шапка сайта */
     header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 1rem 2rem;
-      background-color: #fff;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      padding: 1.2rem 1.5rem;
+      background-color: var(--menu-bg);
+      box-shadow: var(--shadow);
+      position: sticky;
+      top: 0;
+      z-index: 1001;
     }
 
     .logo {
-      font-size: 1.5rem;
-      font-weight: bold;
+      font-size: 1.7rem;
+      font-weight: 600;
+      color: var(--accent);
     }
 
     .menu-icon {
-      font-size: 1.5rem;
+      font-size: 1.7rem;
       cursor: pointer;
+      transition: transform 0.2s ease;
     }
 
-    /* Боковое меню */
+    .menu-icon:hover {
+      transform: scale(1.1);
+    }
+
     .side-menu {
       position: fixed;
       top: 0;
-      right: -300px;
-      width: 250px;
+      right: -320px;
+      width: 280px;
       height: 100%;
-      background-color: #fff;
-      box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+      background-color: var(--menu-bg);
+      box-shadow: -4px 0 12px rgba(0, 0, 0, 0.1);
+      border-top-left-radius: var(--border-radius);
+      border-bottom-left-radius: var(--border-radius);
       transition: right 0.3s ease;
-      z-index: 1000;
+      z-index: 1002;
       padding-top: 60px;
     }
 
@@ -58,10 +76,12 @@
 
     .side-menu a {
       display: block;
-      padding: 15px 20px;
+      padding: 16px 24px;
+      font-size: 1.1rem;
       text-decoration: none;
-      color: #333;
-      transition: background-color 0.3s ease;
+      color: var(--text-color);
+      border-bottom: 1px solid #eee;
+      transition: background 0.3s;
     }
 
     .side-menu a:hover {
@@ -70,24 +90,24 @@
 
     .close-btn {
       position: absolute;
-      top: 10px;
+      top: 14px;
       right: 20px;
       font-size: 1.5rem;
       cursor: pointer;
+      color: #888;
     }
 
-    /* Затемнение фона при активном меню */
     .overlay {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background-color: rgba(0, 0, 0, 0.3);
+      background: rgba(0, 0, 0, 0.3);
       opacity: 0;
       visibility: hidden;
       transition: opacity 0.3s ease;
-      z-index: 500;
+      z-index: 1000;
     }
 
     .overlay.active {
@@ -95,14 +115,19 @@
       visibility: visible;
     }
 
-    /* Адаптивность */
-    @media (max-width: 768px) {
-      header {
-        padding: 1rem;
+    @media (max-width: 600px) {
+      .logo {
+        font-size: 1.4rem;
       }
 
       .side-menu {
         width: 100%;
+        border-radius: 0;
+      }
+
+      .side-menu a {
+        font-size: 1rem;
+        padding: 14px 20px;
       }
     }
   </style>
@@ -128,9 +153,9 @@
 
   <script>
     function toggleMenu() {
-      const sideMenu = document.getElementById('sideMenu');
+      const menu = document.getElementById('sideMenu');
       const overlay = document.getElementById('overlay');
-      sideMenu.classList.toggle('active');
+      menu.classList.toggle('active');
       overlay.classList.toggle('active');
     }
   </script>
