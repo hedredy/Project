@@ -12,6 +12,9 @@
   padding: 0;
   box-sizing: border-box;
   font-family: 'Segoe UI', sans-serif;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
   user-select: none;
 }
 
@@ -132,6 +135,14 @@ header {
   visibility: visible;
 }
 
+/* 🟢 Комп: меню поуже */
+@media (min-width: 769px) {
+  .side-menu {
+    width: 220px;
+  }
+}
+
+/* 🟢 Телефон: меню на полэкрана */
 @media (max-width: 768px) {
   .side-menu {
     width: 50%;
