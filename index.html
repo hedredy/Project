@@ -66,6 +66,7 @@
       font-size: 1.6rem;
       cursor: pointer;
       padding: 0.3rem 0.6rem;
+      color: var(--text-color); /* Черный цвет для кнопки */
     }
 
     .login-btn {
@@ -86,8 +87,8 @@
     .side-menu {
       position: fixed;
       top: 0;
-      right: -50%; /* Меню открывается только наполовину */
-      width: 50%; /* Меню занимает 50% экрана */
+      right: -100%;
+      width: 280px;
       height: 100%;
       background-color: var(--menu-bg);
       box-shadow: -4px 0 12px rgba(0, 0, 0, 0.1);
@@ -141,19 +142,13 @@
       visibility: visible;
     }
 
-    @media (max-width: 600px) {
-      .logo {
-        font-size: 1.3rem;
-      }
-
-      .login-btn {
-        font-size: 0.9rem;
-        padding: 0.3rem 0.8rem;
-      }
-
+    @media (max-width: 768px) {
       .side-menu {
-        width: 100%; /* Для мобильных устройств меню будет занимать всю ширину */
-        border-radius: 0;
+        width: 50%; /* Меню будет занимать 50% экрана */
+      }
+
+      .menu-btn {
+        display: block;
       }
     }
   </style>
