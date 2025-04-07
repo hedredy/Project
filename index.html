@@ -1,58 +1,99 @@
-<!DOCTYPE html>
-<html lang="ru">
+<!DOCTYPE html><html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Сайт для повышения продуктивности</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>hedred.ru — Продуктивность</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', sans-serif;
+      user-select: none;
+    }body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #f3f4f6;
+  color: #1f2937;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background-color: #ffffff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.menu-toggle {
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.main {
+  display: flex;
+  flex: 1;
+  padding: 1rem;
+  gap: 1rem;
+}
+
+.biu {
+  flex: 2;
+  background-color: #ffffff;
+  padding: 1rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.sidebar {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1rem;
+}
+
+.profile-btn {
+  padding: 0.5rem 1rem;
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+@media (max-width: 768px) {
+  .main {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    align-items: stretch;
+  }
+}
+
+  </style>
 </head>
 <body>
+  <header>
+    <div class="logo">hedred</div>
+    <div class="menu-toggle">☰</div>
+  </header>  <main class="main">
+    <section class="biu">
+      <h1>Главная информация</h1>
+      <p>Здесь будет отображаться прогресс, статистика и задачи.</p>
+    </section><aside class="sidebar">
+  <button class="profile-btn">Войти</button>
+</aside>
 
-    <h1>Добро пожаловать на сайт для повышения продуктивности!</h1>
-
-    <!-- Виджет авторизации через Telegram -->
-    <script async src="https://telegram.org/js/telegram-widget.js?22"
-        data-telegram-login="hedredregisterbot"
-        data-size="large"
-        data-userpic="false"
-        data-auth-url="https://hedred.ru"
-        data-request-access="write">
-    </script>
-
-    <!-- Страница приветствия после успешной авторизации -->
-    <div id="welcome-message" style="display:none;">
-        <h2>Привет, <span id="user-name"></span>!</h2>
-        <img id="user-avatar" src="" alt="Аватар пользователя" style="width: 100px; height: 100px;">
-        <p>Добро пожаловать на сайт! Вы можете начать добавлять задачи, следить за продуктивностью и получать уведомления.</p>
-    </div>
-
-    <!-- Форма для задач (появится после авторизации) -->
-    <div id="task-form" style="display:none;">
-        <h3>Добавить задачу</h3>
-        <form action="/submit_task" method="POST">
-            <label for="task-name">Название задачи:</label>
-            <input type="text" id="task-name" name="task-name" required>
-            <label for="task-due-date">Срок выполнения:</label>
-            <input type="date" id="task-due-date" name="task-due-date" required>
-            <input type="submit" value="Добавить задачу">
-        </form>
-    </div>
-
-    <script>
-        // Псевдокод для получения данных пользователя после успешной авторизации
-        // Подтверждение данных после авторизации через Telegram
-        function authenticateUser(data) {
-            if (data.ok) {
-                // Данные пользователя
-                let userData = data.result;
-                document.getElementById('user-name').textContent = userData.username;
-                document.getElementById('user-avatar').src = userData.photo_url;
-
-                // Отображаем приветственное сообщение и форму задач
-                document.getElementById('welcome-message').style.display = 'block';
-                document.getElementById('task-form').style.display = 'block';
-            }
-        }
-    </script>
-
+  </main>
 </body>
 </html>
