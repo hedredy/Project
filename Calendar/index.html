@@ -2,26 +2,24 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>HedRed</title>
-  <link rel="stylesheet" href="style.css" />
   <style>
-    /* Основные стили */
+    /* Основной стиль */
     body {
-      font-family: Arial, sans-serif;
-      background-color: #f7f9fb;
+      font-family: 'Arial', sans-serif;
       margin: 0;
+      background-color: #f4f7fa;
       padding: 0;
     }
 
     header {
       background-color: #4CAF50;
-      color: white;
       padding: 1rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      position: relative;
+      color: white;
     }
 
     .logo {
@@ -38,14 +36,13 @@
     .side-menu {
       position: fixed;
       top: 0;
-      left: -200px;
-      width: 200px;
+      left: -250px;
+      width: 250px;
       height: 100%;
       background-color: #333;
       color: white;
       padding-top: 20px;
       transition: left 0.3s ease;
-      box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
     }
 
     .side-menu a {
@@ -59,6 +56,14 @@
       background-color: #575757;
     }
 
+    .side-menu .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
     .overlay {
       position: fixed;
       top: 0;
@@ -70,69 +75,66 @@
       z-index: 998;
     }
 
-    .side-menu .close-btn {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      font-size: 1.5rem;
-      cursor: pointer;
-      color: white;
-    }
-
+    /* Стиль для календаря */
     .calendar-container {
       max-width: 800px;
-      margin: auto;
-      padding: 1rem;
-      background: white;
-      border-radius: 20px;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+      margin: 2rem auto;
+      padding: 2rem;
+      background-color: white;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
     }
 
-    .calendar-container table {
-      width: 100%;
-      border-collapse: collapse;
+    .calendar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
 
-    .calendar-container th,
-    .calendar-container td {
-      padding: 0.5rem;
-      text-align: center;
-      border: 1px solid #ddd;
+    .calendar-header h2 {
+      margin: 0;
     }
 
-    .calendar-container th {
-      background-color: #f7f9fb;
-    }
-
-    .calendar-day {
-      cursor: pointer;
-    }
-
-    .calendar-day:hover {
-      background-color: #f0f0f0;
-    }
-
-    .task-list {
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 10px;
       margin-top: 1rem;
     }
 
+    .calendar-day {
+      padding: 10px;
+      text-align: center;
+      cursor: pointer;
+      background-color: #f1f1f1;
+      border-radius: 8px;
+    }
+
+    .calendar-day:hover {
+      background-color: #ddd;
+    }
+
+    .task-list {
+      margin-top: 2rem;
+    }
+
     .task-item {
-      padding: 0.5rem;
-      border-left: 5px solid var(--accent);
-      margin: 0.5rem 0;
-      background: #f0f0f0;
+      background-color: #f9f9f9;
+      padding: 1rem;
+      margin: 1rem 0;
       border-radius: 10px;
+      border-left: 5px solid #4CAF50;
     }
 
     .open-modal-btn {
-      background: var(--accent);
+      background-color: #4CAF50;
       color: white;
       border: none;
-      padding: 0.7rem 1.2rem;
-      border-radius: 12px;
+      padding: 10px 20px;
+      border-radius: 8px;
       cursor: pointer;
       display: block;
-      margin: 1rem auto;
+      margin: 2rem auto;
     }
 
     .modal {
@@ -155,9 +157,8 @@
     .modal-content {
       background-color: white;
       padding: 20px;
-      border-radius: 10px;
-      min-width: 300px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 12px;
+      width: 300px;
     }
 
     .modal-content input,
@@ -165,9 +166,9 @@
     .modal-content select {
       width: 100%;
       padding: 10px;
-      margin-bottom: 10px;
+      margin: 10px 0;
+      border-radius: 8px;
       border: 1px solid #ddd;
-      border-radius: 5px;
     }
 
     .close-modal {
@@ -181,152 +182,156 @@
   </style>
 </head>
 <body>
+
   <header>
-    <div class="left">
-      <a href="index.html" class="logo">HedRed</a>
-    </div>
-    <div style="display: flex; align-items: center; gap: 1rem;">
-      <button class="login-btn">Войти</button>
-      <div class="menu-btn" onclick="toggleMenu()">☰</div>
-    </div>
+    <div class="logo">HedRed</div>
+    <div class="menu-btn" onclick="toggleMenu()">☰</div>
   </header>
 
+  <!-- Боковое меню -->
   <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
-
   <nav class="side-menu" id="sideMenu">
     <div class="close-btn" onclick="toggleMenu()">×</div>
-    <a href="Calendar/index.html">Календарь</a>
-    <a href="Notif/index.html">Уведомления</a>
-    <a href="Rem/index.html">Напоминания</a>
-    <a href="Achiev/index.html">Достижения</a>
-    <a href="Set/index.html">Настройки</a>
+    <a href="#">Календарь</a>
+    <a href="#">Уведомления</a>
+    <a href="#">Напоминания</a>
+    <a href="#">Достижения</a>
+    <a href="#">Настройки</a>
   </nav>
 
   <div class="calendar-container">
-    <h1>Календарь</h1>
-    <button class="open-modal-btn" onclick="openModal()">Добавить задачу</button>
-    <div id="calendar"></div>
+    <div class="calendar-header">
+      <h2 id="calendarMonth">Апрель 2025</h2>
+      <button class="open-modal-btn" onclick="openModal()">Добавить задачу</button>
+    </div>
+
+    <!-- Календарь -->
+    <div class="calendar-grid" id="calendarGrid"></div>
+
     <div class="task-list" id="taskList"></div>
   </div>
 
+  <!-- Модальное окно для добавления задачи -->
   <div class="modal" id="taskModal">
     <div class="modal-content">
       <span class="close-modal" onclick="closeModal()">&times;</span>
-      <h3>Новая задача</h3>
+      <h3>Добавить задачу</h3>
       <input type="text" id="taskTitle" placeholder="Название задачи" />
-      <textarea id="taskDesc" placeholder="Описание"></textarea>
-      <input type="date" id="taskDate" min="" />
+      <textarea id="taskDesc" placeholder="Описание задачи"></textarea>
+      <input type="date" id="taskDate" />
       <select id="taskImportance">
         <option value="low">Низкая важность</option>
         <option value="medium">Средняя важность</option>
         <option value="high">Высокая важность</option>
       </select>
-      <button onclick="saveTask()">Сохранить</button>
+      <button onclick="saveTask()">Сохранить задачу</button>
     </div>
   </div>
 
   <script>
-    const modal = document.getElementById('taskModal');
     const taskList = document.getElementById('taskList');
+    const calendarGrid = document.getElementById('calendarGrid');
+    const taskModal = document.getElementById('taskModal');
+    const overlay = document.getElementById('overlay');
+    const taskTitle = document.getElementById('taskTitle');
+    const taskDesc = document.getElementById('taskDesc');
     const taskDate = document.getElementById('taskDate');
-    const calendar = document.getElementById('calendar');
+    const taskImportance = document.getElementById('taskImportance');
 
-    // Установка минимальной даты (сегодня)
-    const today = new Date().toISOString().split('T')[0];
-    taskDate.setAttribute('min', today);
+    const currentMonth = new Date().getMonth();
+    const currentYear = new Date().getFullYear();
 
-    // Функции для открытия и закрытия модального окна
-    function openModal() {
-      modal.classList.add('active');
-    }
+    const months = [
+      'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+      'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
+    ];
 
-    function closeModal() {
-      modal.classList.remove('active');
-    }
-
-    // Сохранение задачи в localStorage
-    function saveTask() {
-      const title = document.getElementById('taskTitle').value.trim();
-      const desc = document.getElementById('taskDesc').value.trim();
-      const date = taskDate.value;
-      const importance = document.getElementById('taskImportance').value;
-      if (!title || !date) return;
-
-      const task = { title, desc, date, importance };
-      const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-      tasks.push(task);
-      localStorage.setItem('tasks', JSON.stringify(tasks));
-      renderTasks();
-      closeModal();
-
-      document.getElementById('taskTitle').value = '';
-      document.getElementById('taskDesc').value = '';
-      taskDate.value = '';
-      document.getElementById('taskImportance').value = 'low';
-    }
-
-    // Отображение задач
-    function renderTasks() {
-      taskList.innerHTML = '';
-      const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-      tasks.forEach(task => {
-        const div = document.createElement('div');
-        div.className = `task-item importance-${task.importance}`;
-        div.innerHTML = `<strong>${task.title}</strong><br><small>${task.date}</small><p>${task.desc}</p>`;
-        taskList.appendChild(div);
-      });
-    }
-
-    // Рендерим задачи при загрузке
-    renderTasks();
-
-    // Интерактивный календарь
+    // Функция для генерации календаря
     function generateCalendar() {
-      let currentDate = new Date();
-      let currentMonth = currentDate.getMonth();
-      let currentYear = currentDate.getFullYear();
+      const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+      const firstDay = new Date(currentYear, currentMonth, 1).getDay();
 
-      calendar.innerHTML = '';
-      
-      let daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-      let firstDay = new Date(currentYear, currentMonth, 1).getDay();
-      
-      let calendarHtml = '<table><thead><tr>';
-      let daysOfWeek = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
-      daysOfWeek.forEach(day => {
-        calendarHtml += `<th>${day}</th>`;
-      });
-      calendarHtml += '</tr></thead><tbody><tr>';
-
+      let calendarHtml = '';
       for (let i = 0; i < firstDay; i++) {
-        calendarHtml += '<td></td>';
+        calendarHtml += '<div class="calendar-day"></div>';
       }
 
       for (let day = 1; day <= daysInMonth; day++) {
-        if ((firstDay + day - 1) % 7 === 0 && day !== 1) {
-          calendarHtml += '</tr><tr>';
-        }
-        calendarHtml += `<td class="calendar-day">${day}</td>`;
+        calendarHtml += `
+          <div class="calendar-day" onclick="openDay(${day})">${day}</div>
+        `;
       }
 
-      calendarHtml += '</tr></tbody></table>';
-      calendar.innerHTML = calendarHtml;
+      calendarGrid.innerHTML = calendarHtml;
+      document.getElementById('calendarMonth').textContent = `${months[currentMonth]} ${currentYear}`;
     }
 
-    generateCalendar();
+    // Открытие задачи
+    function openDay(day) {
+      const tasks = getTasksForDay(day);
+      let taskHtml = '';
+      tasks.forEach(task => {
+        taskHtml += `
+          <div class="task-item">
+            <strong>${task.title}</strong>
+            <p>${task.desc}</p>
+            <small>${task.date} - Важность: ${task.importance}</small>
+          </div>
+        `;
+      });
+      taskList.innerHTML = taskHtml;
+    }
+
+    // Получение задач для конкретного дня
+    function getTasksForDay(day) {
+      const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+      return tasks.filter(task => new Date(task.date).getDate() === day);
+    }
+
+    // Открытие модального окна
+    function openModal() {
+      taskModal.classList.add('active');
+      overlay.style.display = 'block';
+    }
+
+    // Закрытие модального окна
+    function closeModal() {
+      taskModal.classList.remove('active');
+      overlay.style.display = 'none';
+    }
+
+    // Сохранение задачи
+    function saveTask() {
+      const task = {
+        title: taskTitle.value,
+        desc: taskDesc.value,
+        date: taskDate.value,
+        importance: taskImportance.value
+      };
+
+      if (!task.title || !task.date) return;
+
+      const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+      tasks.push(task);
+      localStorage.setItem('tasks', JSON.stringify(tasks));
+      generateCalendar();
+      closeModal();
+      taskTitle.value = '';
+      taskDesc.value = '';
+      taskDate.value = '';
+      taskImportance.value = 'low';
+    }
 
     // Переключение меню
     function toggleMenu() {
       const sideMenu = document.getElementById('sideMenu');
-      const overlay = document.getElementById('overlay');
-      if (sideMenu.style.left === '0px') {
-        sideMenu.style.left = '-200px';
-        overlay.style.display = 'none';
-      } else {
-        sideMenu.style.left = '0px';
-        overlay.style.display = 'block';
-      }
+      const isMenuOpen = sideMenu.style.left === '0px';
+      sideMenu.style.left = isMenuOpen ? '-250px' : '0px';
+      overlay.style.display = isMenuOpen ? 'none' : 'block';
     }
+
+    // Инициализация
+    generateCalendar();
   </script>
 </body>
 </html>
