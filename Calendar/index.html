@@ -1,1 +1,77 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Календарь | HedRed</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <div class="left">
+      <a href="index.html" class="logo">HedRed</a>
+    </div>
+    <div style="display: flex; align-items: center; gap: 1rem;">
+      <button class="login-btn">Войти</button>
+      <div class="menu-btn" onclick="toggleMenu()">☰</div>
+    </div>
+  </header>
 
+  <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+
+  <nav class="side-menu" id="sideMenu">
+    <div class="close-btn" onclick="toggleMenu()">×</div>
+    <a href="Calendar/index.html">Календарь</a>
+    <a href="Notif/index.html">Уведомления</a>
+    <a href="Rem/index.html">Напоминания</a>
+    <a href="Achiev/index.html">Достижения</a>
+    <a href="Set/index.html">Настройки</a>
+  </nav>
+
+  <div class="calendar-container">
+    <h1>Календарь</h1>
+    <div class="calendar-header">
+      <button class="prev-month" onclick="changeMonth(-1)">&#10094;</button>
+      <span id="currentMonth"></span>
+      <button class="next-month" onclick="changeMonth(1)">&#10095;</button>
+    </div>
+
+    <table class="calendar-table">
+      <thead>
+        <tr>
+          <th>Пн</th>
+          <th>Вт</th>
+          <th>Ср</th>
+          <th>Чт</th>
+          <th>Пт</th>
+          <th>Сб</th>
+          <th>Вс</th>
+        </tr>
+      </thead>
+      <tbody id="calendarBody"></tbody>
+    </table>
+
+    <button class="open-modal-btn" onclick="openModal()">Добавить задачу</button>
+
+    <div class="task-list" id="taskList"></div>
+  </div>
+
+  <div class="modal" id="taskModal">
+    <div class="modal-content">
+      <span class="close-modal" onclick="closeModal()">&times;</span>
+      <h3>Новая задача</h3>
+      <input type="text" id="taskTitle" placeholder="Название задачи" />
+      <textarea id="taskDesc" placeholder="Описание"></textarea>
+      <input type="date" id="taskDate" min="" />
+      <select id="taskImportance">
+        <option value="low">Низкая важность</option>
+        <option value="medium">Средняя важность</option>
+        <option value="high">Высокая важность</option>
+      </select>
+      <button onclick="saveTask()">Сохранить</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
