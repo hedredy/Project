@@ -4,7 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Календарь | HedRed</title>
+  <!-- Общие стили -->
+  <link rel="stylesheet" href="../style.css" />
   <style>
+    /* Подключаем тот же CSS для header/side-menu */
     :root {
       --main-bg: #f7f9fb;
       --menu-bg: #ffffff;
@@ -14,169 +17,175 @@
       --border-radius: 20px;
       --cell-size: 48px;
     }
-    * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',sans-serif; }
+    * {
+      margin: 0; padding: 0; box-sizing: border-box;
+      font-family: 'Segoe UI', sans-serif;
+      user-select: none;
+    }
     body {
-      background: var(--main-bg);
+      background-color: var(--main-bg);
       color: var(--text-color);
       overflow-x: hidden;
     }
-    a { text-decoration:none; color:inherit; }
+    a { text-decoration: none; color: inherit; }
 
     /* ===== Header ===== */
     header {
-      display:flex; justify-content:space-between; align-items:center;
-      padding:1rem 1.2rem; background:var(--menu-bg);
-      box-shadow:var(--shadow); position:sticky; top:0; z-index:1001;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1rem 1.2rem; background-color: var(--menu-bg);
+      box-shadow: var(--shadow); position: sticky; top: 0; z-index: 1001;
     }
-    .left { display:flex; align-items:center; gap:1rem; }
+    .left {
+      display: flex; align-items: center; gap: 1rem;
+    }
     .logo {
-      font-size:1.5rem; font-weight:600; color:var(--accent);
-      cursor:pointer;
+      font-size: 1.5rem; font-weight: 600; color: var(--accent);
+      cursor: pointer;
     }
     .login-btn {
-      padding:0.4rem 0.9rem; background:var(--accent);
-      color:#fff; border:none; border-radius:12px;
-      font-size:1rem; cursor:pointer; transition:0.2s;
+      padding: 0.4rem 0.9rem; background-color: var(--accent);
+      color: white; border: none; border-radius: 12px;
+      font-size: 1rem; cursor: pointer; transition: 0.2s ease;
     }
-    .login-btn:hover { background:#005fcc; }
+    .login-btn:hover { background-color: #005fcc; }
     .menu-btn {
-      font-size:1.6rem; cursor:pointer;
-      color:var(--text-color);
-      /* всегда показать */
+      font-size: 1.6rem; cursor: pointer;
+      color: var(--text-color); display: block;
+      padding: 0.3rem 0.6rem;
     }
 
     /* ===== Overlay & Sidebar ===== */
     .overlay {
-      position:fixed; top:0; left:0; width:100%; height:100%;
-      background:rgba(0,0,0,0.3);
-      opacity:0; visibility:hidden;
-      transition:opacity .3s, visibility .3s;
-      z-index:1000;
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.3);
+      opacity: 0; visibility: hidden;
+      transition: opacity .3s, visibility .3s;
+      z-index: 1000;
     }
-    .overlay.active { opacity:1; visibility:visible; }
-
+    .overlay.active { opacity: 1; visibility: visible; }
     .side-menu {
-      position:fixed; top:0; right:-100%; width:280px; height:100%;
-      background:var(--menu-bg); box-shadow:-4px 0 12px rgba(0,0,0,0.1);
-      border-top-left-radius:var(--border-radius);
-      border-bottom-left-radius:var(--border-radius);
-      transition:right .3s; z-index:1002; padding-top:60px;
+      position: fixed; top: 0; right: -100%; width: 280px; height: 100%;
+      background-color: var(--menu-bg);
+      box-shadow: -4px 0 12px rgba(0, 0, 0, 0.1);
+      border-top-left-radius: var(--border-radius);
+      border-bottom-left-radius: var(--border-radius);
+      transition: right 0.3s ease; z-index: 1002; padding-top: 60px;
     }
-    .side-menu.active { right:0; }
+    .side-menu.active { right: 0; }
     .side-menu a {
-      display:block; padding:16px 24px; font-size:1.1rem;
-      color:var(--text-color); border-bottom:1px solid #eee;
+      display: block; padding: 16px 24px; font-size: 1.1rem;
+      color: var(--text-color); border-bottom: 1px solid #eee;
     }
-    .side-menu a:hover { background:#f0f0f0; }
+    .side-menu a:hover { background-color: #f0f0f0; }
     .close-btn {
-      position:absolute; top:14px; right:20px;
-      font-size:1.5rem; cursor:pointer; color:#888;
+      position: absolute; top: 14px; right: 20px;
+      font-size: 1.5rem; cursor: pointer; color: #888;
+    }
+    @media (max-width: 768px) {
+      .side-menu { width: 50%; }
     }
 
-    /* ===== Main ===== */
-    main { padding:80px 1rem 2rem; }
-
-    /* ===== Calendar ===== */
+    /* ===== Main & Calendar ===== */
+    main { padding: 80px 1rem 2rem; }
     .calendar-container {
-      max-width:400px; margin:0 auto;
-      background:var(--menu-bg); border-radius:var(--border-radius);
-      box-shadow:var(--shadow); padding:1rem;
-      animation:fadeIn .4s ease;
+      max-width: 400px; margin: 0 auto;
+      background: var(--menu-bg); border-radius: var(--border-radius);
+      box-shadow: var(--shadow); padding: 1rem;
+      animation: fadeIn .4s ease;
     }
     .calendar-header {
-      display:flex; justify-content:space-between; align-items:center;
-      margin-bottom:0.5rem;
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 0.5rem;
     }
     .calendar-header button {
-      background:none; border:none; font-size:1.5rem;
-      color:var(--accent); cursor:pointer;
-      transition:transform .2s;
+      background: none; border: none; font-size: 1.5rem;
+      color: var(--accent); cursor: pointer; transition: transform .2s;
     }
-    .calendar-header button:hover { transform:scale(1.1); }
-    #month-year { font-weight:600; }
+    .calendar-header button:hover { transform: scale(1.1); }
+    #month-year { font-weight: 600; }
     .calendar-grid {
-      display:grid; grid-template-columns:repeat(7,1fr);
-      gap:0.25rem; position:relative;
+      display: grid; grid-template-columns: repeat(7, 1fr);
+      gap: 0.25rem;
     }
     .calendar-grid .weekday,
     .calendar-grid .day {
-      width:var(--cell-size); height:var(--cell-size);
-      line-height:var(--cell-size); text-align:center;
-      border-radius:6px; user-select:none;
-      overflow:hidden; white-space:nowrap; text-overflow:ellipsis;
+      width: var(--cell-size); height: var(--cell-size);
+      line-height: var(--cell-size); text-align: center;
+      border-radius: 6px; user-select: none;
+      overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
     }
     .calendar-grid .weekday {
-      font-weight:600; color:var(--accent);
+      font-weight: 600; color: var(--accent);
     }
     .calendar-grid .day {
-      background:#f1f4f7; cursor:pointer;
-      transition:background .2s;
-      position: relative; /* важно для точки */
+      background: #f1f4f7; cursor: pointer;
+      transition: background .2s; position: relative;
     }
-    .calendar-grid .day:hover { background:rgba(0,122,255,0.1); }
+    .calendar-grid .day:hover { background: rgba(0,122,255,0.1); }
     .calendar-grid .today {
-      background:var(--accent); color:#fff; font-weight:600;
+      background: var(--accent); color: #fff; font-weight: 600;
     }
     .calendar-grid .has-note::after {
-      content:'●'; position:absolute; right:4px; bottom:4px;
-      color:#e74c3c; font-size:0.8rem;
+      content: '●'; position: absolute; right: 4px; bottom: 4px;
+      color: #e74c3c; font-size: 0.8rem;
     }
     @keyframes fadeIn {
-      from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     /* ===== Notes ===== */
     .notes-section {
-      max-width:400px; margin:1.5rem auto 0;
-      background:var(--menu-bg); padding:1rem;
-      border-radius:var(--border-radius); box-shadow:var(--shadow);
-      animation:fadeIn .4s ease;
+      max-width: 400px; margin: 1.5rem auto 0;
+      background: var(--menu-bg); padding: 1rem;
+      border-radius: var(--border-radius); box-shadow: var(--shadow);
+      animation: fadeIn .4s ease;
     }
-    .notes-section h3 { margin-bottom:0.5rem; }
-    #notes-list { list-style:none; }
+    .notes-section h3 { margin-bottom: 0.5rem; }
+    #notes-list { list-style: none; }
     #notes-list li {
-      display:flex; justify-content:space-between; align-items:center;
-      padding:0.5rem; margin-bottom:0.5rem; background:#fff;
-      border-left:4px solid; border-radius:4px;
-      overflow:hidden; white-space:nowrap; text-overflow:ellipsis;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0.5rem; margin-bottom: 0.5rem; background: #fff;
+      border-left: 4px solid; border-radius: 4px;
+      overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
     }
-    #notes-list li[data-priority="low"]    { border-color:#2ecc71; }
-    #notes-list li[data-priority="normal"] { border-color:var(--accent); }
-    #notes-list li[data-priority="high"]   { border-color:#ff3b30; }
-    .note-info { flex:1; margin-right:0.5rem; }
+    #notes-list li[data-priority="low"]    { border-color: #2ecc71; }
+    #notes-list li[data-priority="normal"] { border-color: var(--accent); }
+    #notes-list li[data-priority="high"]   { border-color: #ff3b30; }
+    .note-info { flex: 1; margin-right: 0.5rem; }
     .note-actions button {
-      background:none; border:none; font-size:1rem; margin-left:0.3rem;
-      cursor:pointer; transition:color .2s;
+      background: none; border: none; font-size: 1rem; margin-left: 0.3rem;
+      cursor: pointer; transition: color .2s;
     }
-    .note-actions button:hover { color:var(--accent); }
+    .note-actions button:hover { color: var(--accent); }
 
     /* ===== Modal ===== */
     .modal {
-      position:fixed; top:0; left:0; right:0; bottom:0;
-      background:rgba(0,0,0,0.4); display:none;
-      justify-content:center; align-items:center; z-index:1010;
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.4); display: none;
+      justify-content: center; align-items: center; z-index: 1010;
     }
-    .modal.active { display:flex; animation:fadeIn .3s; }
+    .modal.active { display: flex; animation: fadeIn .3s; }
     .modal-content {
-      background:var(--menu-bg); padding:1rem; border-radius:var(--border-radius);
-      width:90%; max-width:320px; box-shadow:var(--shadow);
-      display:flex; flex-direction:column; gap:0.5rem;
+      background: var(--menu-bg); padding: 1rem; border-radius: var(--border-radius);
+      width: 90%; max-width: 320px; box-shadow: var(--shadow);
+      display: flex; flex-direction: column; gap: 0.5rem;
     }
-    .modal-content label { font-weight:500; }
+    .modal-content label { font-weight: 500; }
     .modal-content textarea,
     .modal-content select {
-      width:100%; padding:0.5rem; border-radius:6px; border:1px solid #ccc;
+      width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid #ccc;
     }
     .modal-actions {
-      display:flex; justify-content:flex-end; gap:0.5rem;
+      display: flex; justify-content: flex-end; gap: 0.5rem;
     }
     #modal-cancel {
-      background:#ccc; color:#333; padding:0.5rem 1rem;
-      border:none; border-radius:6px; cursor:pointer;
+      background: #ccc; color: #333; padding: 0.5rem 1rem;
+      border: none; border-radius: 6px; cursor: pointer;
     }
     #note-form button[type="submit"] {
-      background:var(--accent); color:#fff; padding:0.5rem 1rem;
-      border:none; border-radius:6px; cursor:pointer;
+      background: var(--accent); color: #fff; padding: 0.5rem 1rem;
+      border: none; border-radius: 6px; cursor: pointer;
     }
   </style>
 </head>
@@ -186,7 +195,7 @@
     <div class="left">
       <a href="https://hedred.ru" class="logo">HedRed</a>
     </div>
-    <div style="display:flex; align-items:center; gap:1rem;">
+    <div style="display: flex; align-items: center; gap: 1rem;">
       <button class="login-btn">Войти</button>
       <div class="menu-btn" onclick="toggleMenu()">☰</div>
     </div>
@@ -195,7 +204,8 @@
   <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
   <nav class="side-menu" id="sideMenu">
     <div class="close-btn" onclick="toggleMenu()">×</div>
-    <a href="../Calendar/index.html">Календарь</a>
+    <a href="index.html">Главная</a>
+    <a href="index.html">Календарь</a>
     <a href="../Notif/index.html">Уведомления</a>
     <a href="../Rem/index.html">Напоминания</a>
     <a href="../Achiev/index.html">Достижения</a>
@@ -245,7 +255,7 @@
       document.getElementById('overlay').classList.toggle('active');
     }
 
-    // ===== Calendar & Notes =====
+    // ===== Calendar & Notes Logic =====
     document.addEventListener('DOMContentLoaded', () => {
       const grid = document.getElementById('calendar-grid');
       const monthYear = document.getElementById('month-year');
