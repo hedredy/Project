@@ -42,7 +42,7 @@
     .menu-btn {
       font-size:1.6rem; cursor:pointer;
       color:var(--text-color);
-      display:none;
+      /* всегда показать */
     }
 
     /* ===== Overlay & Sidebar ===== */
@@ -71,11 +71,6 @@
     .close-btn {
       position:absolute; top:14px; right:20px;
       font-size:1.5rem; cursor:pointer; color:#888;
-    }
-
-    @media(max-width:768px){
-      .menu-btn { display:block; }
-      .side-menu { width:50%; }
     }
 
     /* ===== Main ===== */
@@ -116,6 +111,7 @@
     .calendar-grid .day {
       background:#f1f4f7; cursor:pointer;
       transition:background .2s;
+      position: relative; /* важно для точки */
     }
     .calendar-grid .day:hover { background:rgba(0,122,255,0.1); }
     .calendar-grid .today {
@@ -148,8 +144,6 @@
     #notes-list li[data-priority="normal"] { border-color:var(--accent); }
     #notes-list li[data-priority="high"]   { border-color:#ff3b30; }
     .note-info { flex:1; margin-right:0.5rem; }
-    .note-date { font-size:.85rem; color:#777; }
-    .note-text {}
     .note-actions button {
       background:none; border:none; font-size:1rem; margin-left:0.3rem;
       cursor:pointer; transition:color .2s;
@@ -190,7 +184,7 @@
 
   <header>
     <div class="left">
-      <a href="index.html" class="logo">HedRed</a>
+      <a href="https://hedred.ru" class="logo">HedRed</a>
     </div>
     <div style="display:flex; align-items:center; gap:1rem;">
       <button class="login-btn">Войти</button>
