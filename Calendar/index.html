@@ -2,12 +2,11 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Календарь | HedRed</title>
-  <!-- Общие стили -->
   <link rel="stylesheet" href="../style.css" />
   <style>
-    /* Подключаем тот же CSS для header/side-menu */
     :root {
       --main-bg: #f7f9fb;
       --menu-bg: #ffffff;
@@ -27,7 +26,7 @@
       color: var(--text-color);
       overflow-x: hidden;
     }
-    a { text-decoration: none; color: inherit; }
+    a { text-decoration: none; color: inherit; cursor: pointer; }
 
     /* ===== Header ===== */
     header {
@@ -40,7 +39,6 @@
     }
     .logo {
       font-size: 1.5rem; font-weight: 600; color: var(--accent);
-      cursor: pointer;
     }
     .login-btn {
       padding: 0.4rem 0.9rem; background-color: var(--accent);
@@ -50,8 +48,7 @@
     .login-btn:hover { background-color: #005fcc; }
     .menu-btn {
       font-size: 1.6rem; cursor: pointer;
-      color: var(--text-color); display: block;
-      padding: 0.3rem 0.6rem;
+      color: var(--text-color); padding: 0.3rem 0.6rem;
     }
 
     /* ===== Overlay & Sidebar ===== */
@@ -118,20 +115,21 @@
       font-weight: 600; color: var(--accent);
     }
     .calendar-grid .day {
-      background: #f1f4f7; cursor: pointer;
+      background: #f1f4f7; cursor: default;
       transition: background .2s; position: relative;
     }
-    .calendar-grid .day:hover { background: rgba(0,122,255,0.1); }
+    .calendar-grid .day.enable {
+      cursor: pointer;
+    }
+    .calendar-grid .day.enable:hover {
+      background: rgba(0,122,255,0.1);
+    }
     .calendar-grid .today {
       background: var(--accent); color: #fff; font-weight: 600;
     }
-    .calendar-grid .has-note::after {
-      content: '●'; position: absolute; right: 4px; bottom: 4px;
-      color: #e74c3c; font-size: 0.8rem;
-    }
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+      to   { opacity: 1; transform: translateY(0); }
     }
 
     /* ===== Notes ===== */
@@ -170,23 +168,17 @@
       background: var(--menu-bg); padding: 1rem; border-radius: var(--border-radius);
       width: 90%; max-width: 320px; box-shadow: var(--shadow);
       display: flex; flex-direction: column; gap: 0.5rem;
+      text-align: center;
     }
-    .modal-content label { font-weight: 500; }
-    .modal-content textarea,
-    .modal-content select {
-      width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid #ccc;
+    .modal-content img {
+      width: 100%; border-radius: var(--border-radius);
     }
-    .modal-actions {
-      display: flex; justify-content: flex-end; gap: 0.5rem;
-    }
-    #modal-cancel {
-      background: #ccc; color: #333; padding: 0.5rem 1rem;
+    .modal-content button {
+      margin-top: 0.5rem; padding: 0.5rem 1rem;
+      background: var(--accent); color: #fff;
       border: none; border-radius: 6px; cursor: pointer;
     }
-    #note-form button[type="submit"] {
-      background: var(--accent); color: #fff; padding: 0.5rem 1rem;
-      border: none; border-radius: 6px; cursor: pointer;
-    }
+    .modal-content button:hover { background: #005fcc; }
   </style>
 </head>
 <body>
@@ -222,12 +214,165 @@
       <div class="calendar-grid" id="calendar-grid"></div>
     </div>
 
-    <section class="notes-section">
+    <section class="notes-section" id="notes-section">
       <h3>Заметки</h3>
       <ul id="notes-list"></ul>
     </section>
   </main>
 
+  <!-- Модалка с фото -->
+  <div class="modal" id="photo-modal">
+    <div class="modal-content">
+      <img src="Calendar/photo_2025-04-17_21-42-30.jpg" alt="Фото" />
+      <button onclick="closePhoto()">Закрыть</button>
+    </div>
+  </div>
+
+  <script>
+    // ===== Sidebar Toggle =====
+    function toggleMenu() {
+      document.getElementById('sideMenu').classList.toggle('active');
+      document.getElementById('overlay').classList.toggle('active');
+    }
+
+    // ===== Calendar & Notes Logic =====
+    document.addEventListener('DOMContentLoaded', () => {
+      const grid = document.getElementById('calendar-grid');
+      const monthYear = document.getElementById('month-year');
+      const prev = document.getElementById('prev-month');
+      const next = document.getElementById('next-month');
+      const photoModal = document.getElementById('photo-modal');
+      const noteModal = document.getElementById('note-modal');
+      const form = document.getElementById('note-form');
+      const noteDateLabel = document.getElementById('note-date');
+      const noteText = document.getElementById('note-text');
+      const notePri = document.getElementById('note-priority');
+      const cancel = document.getElementById('modal-cancel');
+      const notesSection = document.getElementById('notes-section');
+      const list = document.getElementById('notes-list');
+
+      const today = new Date().toISOString().slice(0,10); // YYYY-MM-DD
+      let current = new Date();
+      let events = JSON.parse(localStorage.getItem('hedredEvents') || '[]');
+      let editId = null;
+
+      function save() {
+        localStorage.setItem('hedredEvents', JSON.stringify(events));
+      }
+
+      function render() {
+        grid.innerHTML = '';
+        const y = current.getFullYear(), m = current.getMonth();
+        monthYear.textContent = current.toLocaleString('ru-RU', { month:'long', year:'numeric' });
+
+        // Weekdays
+        ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].forEach(d => {
+          const w = document.createElement('div');
+          w.textContent = d; w.className = 'weekday';
+          grid.appendChild(w);
+        });
+
+        // Empty before first
+        const offset = (new Date(y,m,1).getDay() + 6) % 7;
+        for(let i=0; i<offset; i++) grid.appendChild(document.createElement('div'));
+
+        // Days
+        const days = new Date(y,m+1,0).getDate();
+        for(let d=1; d<=days; d++){
+          const cell = document.createElement('div');
+          cell.className = 'day';
+          cell.textContent = d;
+          const dateStr = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+
+          // Today highlight
+          if(dateStr === today) cell.classList.add('today');
+
+          // Past: photo
+          if(dateStr < today) {
+            cell.classList.add('enable');
+            cell.onclick = () => photoModal.classList.add('active');
+          }
+          // Today & future: notes
+          else {
+            cell.classList.add('enable');
+            cell.onclick = () => openNoteModal(dateStr);
+          }
+
+          grid.appendChild(cell);
+        }
+      }
+
+      function openNoteModal(date) {
+        noteDateLabel.textContent = date;
+        noteText.value = '';
+        notePri.value = 'normal';
+        editId = null;
+        document.getElementById('modal-title').textContent = 'Добавить заметку';
+        noteModal.classList.add('active');
+      }
+      cancel.onclick = () => noteModal.classList.remove('active');
+      function closePhoto() { photoModal.classList.remove('active'); }
+
+      form.onsubmit = e => {
+        e.preventDefault();
+        const dt = noteDateLabel.textContent;
+        const txt = noteText.value.trim();
+        if(!txt) return;
+        if(editId) {
+          const ev = events.find(x=>x.id===editId);
+          ev.text = txt; ev.priority = notePri.value;
+        } else {
+          events.push({ id: Date.now(), date: dt, text: txt, priority: notePri.value });
+        }
+        save(); noteModal.classList.remove('active');
+        render(); renderList();
+      };
+
+      function renderList() {
+        list.innerHTML = '';
+        if(events.length === 0) {
+          notesSection.style.display = 'none';
+        } else {
+          notesSection.style.display = '';
+        }
+        events.sort((a,b) => a.date < b.date ? -1 : 1).forEach(ev => {
+          const li = document.createElement('li');
+          li.dataset.priority = ev.priority;
+          li.innerHTML = `
+            <div class="note-info">
+              <div class="note-date">${ev.date}</div>
+              <div class="note-text">${ev.text}</div>
+            </div>
+            <div class="note-actions">
+              <button title="Редактировать">✏️</button>
+              <button title="Удалить">✖️</button>
+            </div>`;
+          li.querySelector('[title="Редактировать"]').onclick = () => {
+            editId = ev.id;
+            document.getElementById('modal-title').textContent = 'Редактировать заметку';
+            noteDateLabel.textContent = ev.date;
+            noteText.value = ev.text;
+            notePri.value = ev.priority;
+            noteModal.classList.add('active');
+          };
+          li.querySelector('[title="Удалить"]').onclick = () => {
+            if(confirm('Удалить заметку?')) {
+              events = events.filter(x => x.id !== ev.id);
+              save(); render(); renderList();
+            }
+          };
+          list.appendChild(li);
+        });
+      }
+
+      prev.onclick = () => { current.setMonth(current.getMonth()-1); render(); };
+      next.onclick = () => { current.setMonth(current.getMonth()+1); render(); };
+
+      render(); renderList();
+    });
+  </script>
+
+  <!-- Модалка заметок -->
   <div class="modal" id="note-modal">
     <div class="modal-content">
       <h3 id="modal-title">Добавить заметку</h3>
@@ -248,122 +393,5 @@
     </div>
   </div>
 
-  <script>
-    // ===== Sidebar Toggle =====
-    function toggleMenu() {
-      document.getElementById('sideMenu').classList.toggle('active');
-      document.getElementById('overlay').classList.toggle('active');
-    }
-
-    // ===== Calendar & Notes Logic =====
-    document.addEventListener('DOMContentLoaded', () => {
-      const grid = document.getElementById('calendar-grid');
-      const monthYear = document.getElementById('month-year');
-      const prev = document.getElementById('prev-month');
-      const next = document.getElementById('next-month');
-      const modal = document.getElementById('note-modal');
-      const form = document.getElementById('note-form');
-      const noteDateLabel = document.getElementById('note-date');
-      const noteText = document.getElementById('note-text');
-      const notePri = document.getElementById('note-priority');
-      const cancel = document.getElementById('modal-cancel');
-      const list = document.getElementById('notes-list');
-
-      let today = new Date();
-      let current = new Date();
-      let events = JSON.parse(localStorage.getItem('hedredEvents')||'[]');
-      let editId = null;
-
-      function save() {
-        localStorage.setItem('hedredEvents', JSON.stringify(events));
-      }
-
-      function render() {
-        grid.innerHTML = '';
-        const y = current.getFullYear(), m = current.getMonth();
-        monthYear.textContent = current.toLocaleString('ru-RU',{month:'long', year:'numeric'});
-        ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].forEach(d=>{
-          const w = document.createElement('div'); w.textContent=d; w.className='weekday';
-          grid.appendChild(w);
-        });
-        const first = (new Date(y,m,1).getDay()+6)%7;
-        for(let i=0;i<first;i++) grid.appendChild(document.createElement('div'));
-        const days = new Date(y,m+1,0).getDate();
-        for(let d=1; d<=days; d++){
-          const cell = document.createElement('div');
-          cell.className='day';
-          cell.textContent=d;
-          const date = ${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')};
-          if(events.some(e=>e.date===date)) cell.classList.add('has-note');
-          const isToday = date===${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')};
-          if(isToday) cell.classList.add('today');
-          cell.onclick = ()=> openModal(date);
-          grid.appendChild(cell);
-        }
-      }
-
-      function openModal(date) {
-        noteDateLabel.textContent=date;
-        noteText.value='';
-        notePri.value='normal';
-        editId = null;
-        document.getElementById('modal-title').textContent='Добавить заметку';
-        modal.classList.add('active');
-      }
-      cancel.onclick = ()=> modal.classList.remove('active');
-
-      form.onsubmit = e=>{
-        e.preventDefault();
-        const dt = noteDateLabel.textContent;
-        const txt=noteText.value.trim();
-        if(!txt) return;
-        if(editId){
-          const ev=events.find(x=>x.id===editId);
-          ev.text=txt; ev.priority=notePri.value;
-        } else {
-          events.push({id:Date.now(), date:dt, text:txt, priority:notePri.value});
-        }
-        save(); modal.classList.remove('active');
-        render(); renderList();
-      };
-
-      function renderList() {
-        list.innerHTML='';
-        events.sort((a,b)=>a.date<b.date?-1:1).forEach(ev=>{
-          const li=document.createElement('li');
-          li.dataset.priority=ev.priority;
-          li.innerHTML=
-            <div class="note-info">
-              <div class="note-date">${ev.date}</div>
-              <div class="note-text">${ev.text}</div>
-            </div>
-            <div class="note-actions">
-              <button title="Редактировать">✏️</button>
-              <button title="Удалить">✖️</button>
-            </div>;
-          li.querySelector('[title="Редактировать"]').onclick=()=>{
-            editId=ev.id;
-            document.getElementById('modal-title').textContent='Редактировать заметку';
-            noteDateLabel.textContent=ev.date;
-            noteText.value=ev.text;
-            notePri.value=ev.priority;
-            modal.classList.add('active');
-          };
-          li.querySelector('[title="Удалить"]').onclick=()=>{
-            if(confirm('Удалить заметку?')){
-              events=events.filter(x=>x.id!==ev.id);
-              save(); render(); renderList();
-            }
-          };
-          list.appendChild(li);
-        });
-      }
-
-      prev.onclick = ()=>{ current.setMonth(current.getMonth()-1); render(); };
-      next.onclick = ()=>{ current.setMonth(current.getMonth()+1); render(); };
-
-      render(); renderList();
-    });
-  </script>
 </body>
 </html>
