@@ -3,422 +3,45 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Календарь | HedRed</title>
-  <link rel="stylesheet" href="style.css" />
-  <style>
-    /* Основные переменные */
-    :root {
-      --menu-bg: #fff;
-      --accent: #e74c3c;
-      --text-color: #333;
-      --border-radius: 8px;
-      --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    }
-
-    /* Сброс стилей */
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #f5f5f5;
-      color: var(--text-color);
-    }
-
-    /* ===== Шапка ===== */
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: var(--menu-bg);
-      padding: 1rem 2rem;
-      box-shadow: var(--shadow);
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-    }
-
-    .logo {
-      font-size: 1.5rem;
-      font-weight: bold;
-      color: var(--accent);
-      text-decoration: none;
-    }
-
-    .menu-btn {
-      display: none;
-      font-size: 1.5rem;
-      cursor: pointer;
-      background: none;
-      border: none;
-    }
-
-    .login-btn {
-      background: var(--accent);
-      color: #fff;
-      border: none;
-      padding: 0.5rem 1rem;
-      border-radius: var(--border-radius);
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-
-    .login-btn:hover {
-      background: #c0392b;
-    }
-
-    /* ===== Боковое меню ===== */
-    .side-menu {
-      position: fixed;
-      top: 0;
-      left: -250px;
-      width: 250px;
-      height: 100%;
-      background: var(--menu-bg);
-      box-shadow: var(--shadow);
-      padding: 2rem 1rem;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      transition: left 0.3s;
-      z-index: 999;
-    }
-
-    .side-menu.active {
-      left: 0;
-    }
-
-    .side-menu a {
-      text-decoration: none;
-      color: var(--text-color);
-      font-weight: 500;
-      transition: color 0.3s;
-    }
-
-    .side-menu a:hover {
-      color: var(--accent);
-    }
-
-    .close-btn {
-      align-self: flex-end;
-      font-size: 1.5rem;
-      cursor: pointer;
-    }
-
-    .overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.3);
-      display: none;
-      z-index: 998;
-    }
-
-    .overlay.active {
-      display: block;
-    }
-
-    /* ===== Календарь ===== */
-    .calendar-container {
-      background: var(--menu-bg);
-      padding: 1rem;
-      border-radius: var(--border-radius);
-      box-shadow: var(--shadow);
-      max-width: 400px;
-      margin: 2rem auto;
-    }
-
-    .calendar-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 0.5rem;
-    }
-
-    .calendar-header button {
-      background: none;
-      border: none;
-      font-size: 1.5rem;
-      cursor: pointer;
-      color: var(--accent);
-    }
-
-    #month-year {
-      font-weight: 600;
-      color: var(--text-color);
-    }
-
-    .calendar-grid {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 0.2rem;
-    }
-
-    .calendar-grid div {
-      text-align: center;
-      padding: 0.5rem 0;
-      border-radius: 0.5rem;
-      position: relative;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-
-    .calendar-grid .weekday {
-      font-weight: 600;
-      color: var(--accent);
-    }
-
-    .calendar-grid .today {
-      background: var(--accent);
-      color: #fff;
-    }
-
-    .calendar-grid .has-note::after {
-      content: '•';
-      position: absolute;
-      bottom: 4px;
-      right: 4px;
-      color: #e74c3c;
-      font-size: 1rem;
-    }
-
-    .calendar-grid div:hover {
-      background: #ecf0f1;
-    }
-
-    /* ===== Список заметок ===== */
-    .notes-section {
-      margin: 2rem auto;
-      max-width: 400px;
-      background: var(--menu-bg);
-      padding: 1rem;
-      border-radius: var(--border-radius);
-      box-shadow: var(--shadow);
-    }
-
-    .notes-section h3 {
-      margin-bottom: 0.5rem;
-      color: var(--text-color);
-    }
-
-    #notes-list {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-
-    #notes-list li {
-      background: #fefefe;
-      border: 1px solid #ddd;
-      border-left-width: 4px;
-      padding: 0.5rem;
-      margin-bottom: 0.5rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      transition: background 0.3s;
-    }
-
-    #notes-list li[data-priority="low"]    { border-left-color: #2ecc71; }
-    #notes-list li[data-priority="normal"] { border-left-color: #f1c40f; }
-    #notes-list li[data-priority="high"]   { border-left-color: #e74c3c; }
-
-    .note-info {
-      flex: 1;
-      margin-right: 0.5rem;
-    }
-
-    .note-info .note-date {
-      font-size: 0.85rem;
-      color: #777;
-    }
-
-    .note-actions button {
-      background: none;
-      border: none;
-      cursor: pointer;
-      font-size: 1rem;
-      margin-left: 0.3rem
-::contentReference[oaicite:3]{index=3}
- 
-    }
-
-    .note-actions button:hover {
-      color: var(--accent);
-    }
-
-    /* Адаптивность */
-    @media (max-width: 600px) {
-      .calendar-container, .notes-section {
-        margin: 1rem;
-      }
-
-      .menu-btn {
-        display: block;
-      }
-
-      .login-btn {
-        padding: 0.4rem 0.8rem;
-      }
-    }
-  </style>
+  <title>Календарь - HedRed</title>
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="calendar.css" />
 </head>
 <body>
 
-  <!-- Меню -->
   <header>
-    <a href="/" class="logo">HedRed</a>
-    <button class="menu-btn" onclick="toggleMenu()">☰</button>
-    <button class="login-btn">Войти</button>
+    <div class="left">
+      <a href="../index.html" class="logo">HedRed</a>
+    </div>
+    <div style="display: flex; align-items: center; gap: 1rem;">
+      <button class="login-btn">Войти</button>
+      <div class="menu-btn" onclick="toggleMenu()">☰</div>
+    </div>
   </header>
 
-  <div class="side-menu" id="sideMenu">
-    <span class="close-btn" onclick="toggleMenu()">×</span>
-    <a href="/">Главная</a>
-    <a href="#">Календарь</a>
-    <a href="#">Заметки</a>
-    <a href="#">Контакты</a>
-  </div>
   <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
 
-  <!-- Календарь -->
-  <div class="calendar-container">
-    <div class="calendar-header">
-      <button onclick="prevMonth()">&lt;</button>
-      <div id="month-year">Апрель 2025</div>
-      <button onclick="nextMonth()">&gt;</button>
+  <nav class="side-menu" id="sideMenu">
+    <div class="close-btn" onclick="toggleMenu()">×</div>
+    <a href="../Calendar/index.html">Календарь</a>
+    <a href="../Notif/index.html">Уведомления</a>
+    <a href="../Rem/index.html">Напоминания</a>
+    <a href="../Achiev/index.html">Достижения</a>
+    <a href="../Set/index.html">Настройки</a>
+  </nav>
+
+  <main class="calendar-container">
+    <div class="calendar">
+      <div class="calendar-header">
+        <button id="prevMonth">‹</button>
+        <h2 id="monthYear"></h2>
+        <button id="nextMonth">›</button>
+      </div>
+      <div class="calendar-grid" id="calendarGrid"></div>
     </div>
-    <div class="calendar-grid" id="calendar-grid">
-      <!-- Сюда JS вставит дни -->
-    </div>
-  </div>
+  </main>
 
-  <!-- Заметки -->
-  <div class="notes-section">
-    <h3>Заметки</h3>
-    <ul id="notes-list">
-      <!-- Сюда JS вставит заметки -->
-    </ul>
-  </div>
-
-  <script>
-    const monthYear = document.getElementById("month-year");
-    const calendarGrid = document.getElementById("calendar-grid");
-    const notesList = document.getElementById("notes-list");
-
-    let today = new Date();
-    let currentMonth = today.getMonth();
-    let currentYear = today.getFullYear();
-
-    const notes = {
-      "2025-04-10": { text: "Пример события", priority: "normal" },
-      "2025-04-17": { text: "День проекта", priority: "high" }
-    };
-
-    function renderCalendar(month, year) {
-      calendarGrid.innerHTML = "";
-
-      const daysOfWeek = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
-      daysOfWeek.forEach(day => {
-        const div = document.createElement("div");
-        div.className = "weekday";
-        div.textContent = day;
-        calendarGrid.appendChild(div);
-      });
-
-      const firstDay = new Date(year, month).getDay() || 7;
-      const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-      for (let i = 1; i < firstDay; i++) {
-        calendarGrid.appendChild(document.createElement("div"));
-      }
-
-      for (let day = 1; day <= daysInMonth; day++) {
-        const date = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-        const cell = document.createElement("div");
-        cell.textContent = day;
-
-        if (date === formatDate(today)) {
-          cell.classList.add("today");
-        }
-
-        if (notes[date]) {
-          cell.classList.add("has-note");
-          cell.title = notes[date].text;
-        }
-
-        calendarGrid.appendChild(cell);
-      }
-
-      const monthNames = [
-        "Январь", "Февраль", "Март", "Апрель", "Май", "Июнь",
-        "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"
-      ];
-
-      monthYear.textContent = `${monthNames[month]} ${year}`;
-      renderNotes();
-    }
-
-    function formatDate(date) {
-      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-    }
-
-    function renderNotes() {
-      notesList.innerHTML = "";
-      Object.keys(notes).forEach(date => {
-        const li = document.createElement("li");
-        li.setAttribute("data-priority", notes[date].priority);
-
-        const info = document.createElement("div");
-        info.className = "note-info";
-        info.innerHTML = `<div>${notes[date].text}</div><div class="note-date">${date}</div>`;
-
-        const actions = document.createElement("div");
-        actions.className = "note-actions";
-        const delBtn = document.createElement("button");
-        delBtn.textContent = "✖";
-        delBtn.onclick = () => {
-          delete notes[date];
-          renderCalendar(currentMonth, currentYear);
-        };
-        actions.appendChild(delBtn);
-
-        li.appendChild(info);
-        li.appendChild(actions);
-        notesList.appendChild(li);
-      });
-    }
-
-    function prevMonth() {
-      currentMonth--;
-      if (currentMonth < 0) {
-        currentMonth = 11;
-        currentYear--;
-      }
-      renderCalendar(currentMonth, currentYear);
-    }
-
-    function nextMonth() {
-      currentMonth++;
-      if (currentMonth > 11) {
-        currentMonth = 0;
-        currentYear++;
-      }
-      renderCalendar(currentMonth, currentYear);
-    }
-
-    function toggleMenu() {
-      document.getElementById("sideMenu").classList.toggle("active");
-      document.getElementById("overlay").classList.toggle("active");
-    }
-
-    renderCalendar(currentMonth, currentYear);
-  </script>
-
+  <script src="../script.js"></script>
+  <script src="calendar.js"></script>
 </body>
 </html>
