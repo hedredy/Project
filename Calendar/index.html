@@ -6,113 +6,136 @@
   <title>Календарь | HedRed</title>
   <link rel="stylesheet" href="../style.css" />
   <style>
-    :root {
-      --menu-bg: #2c3e50;
-      --accent: #e74c3c;
-      --text-color: #ecf0f1;
-      --border-radius: 10px;
-      --shadow: 0 2px 5px rgba(0,0,0,0.2);
-    }
-
+    /* ===== Общие стили для меню и логотипа ===== */
     body {
       font-family: Arial, sans-serif;
-      background-color: #ecf0f1;
-      margin: 0;
-      padding: 0;
     }
-
     header {
       display: flex;
       justify-content: space-between;
-      padding: 1rem 2rem;
+      padding: 1rem;
       background-color: var(--menu-bg);
-      align-items: center;
-      position: fixed;
-      width: 100%;
-      top: 0;
-      left: 0;
-      z-index: 1000;
+      box-shadow: var(--shadow);
     }
-
-    header img {
-      height: 40px;
-    }
-
-    .menu-button {
+    .logo {
       font-size: 1.5rem;
-      color: #fff;
-      background: none;
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .login-btn {
+      background-color: var(--accent);
+      color: white;
+      padding: 0.5rem 1rem;
       border: none;
       cursor: pointer;
+      border-radius: var(--border-radius);
+    }
+    .menu-btn {
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: var(--text-color);
     }
 
-    /* ===== Основной контейнер ===== */
+    /* ===== Анимации для бокового меню ===== */
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 10;
+    }
+    .side-menu {
+      position: fixed;
+      top: 0;
+      left: -250px;
+      width: 250px;
+      height: 100%;
+      background-color: var(--menu-bg);
+      box-shadow: var(--shadow);
+      transition: left 0.3s ease;
+      z-index: 20;
+      padding: 1rem;
+    }
+    .side-menu a {
+      color: var(--text-color);
+      display: block;
+      text-decoration: none;
+      padding: 1rem 0;
+      border-bottom: 1px solid #ddd;
+      font-size: 1rem;
+    }
+    .side-menu a:hover {
+      background-color: var(--accent);
+      color: white;
+    }
+    .close-btn {
+      font-size: 1.5rem;
+      color: var(--text-color);
+      cursor: pointer;
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+    }
+
+    /* ===== Календарь ===== */
     .calendar-container {
-      margin-top: 80px; /* Сдвиг вниз, чтобы учесть фиксированное меню */
       background: var(--menu-bg);
       padding: 1rem;
       border-radius: var(--border-radius);
       box-shadow: var(--shadow);
       max-width: 400px;
       margin: 0 auto;
-      transition: all 0.3s ease;
     }
-
     .calendar-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 0.5rem;
     }
-
     .calendar-header button {
       background: none;
       border: none;
       font-size: 1.5rem;
       cursor: pointer;
       color: var(--accent);
-      transition: transform 0.2s ease;
     }
-
-    .calendar-header button:hover {
-      transform: scale(1.1);
-    }
-
     #month-year {
       font-weight: 600;
       color: var(--text-color);
     }
-
     .calendar-grid {
       display: grid;
       grid-template-columns: repeat(7, 1fr);
       gap: 0.2rem;
     }
-
     .calendar-grid div {
       text-align: center;
       padding: 0.5rem 0;
       border-radius: 0.5rem;
       position: relative;
       cursor: pointer;
-      transition: background 0.2s ease;
     }
-
-    .calendar-grid div:hover {
-      background-color: rgba(231, 76, 60, 0.1);
-    }
-
     .calendar-grid .weekday {
       font-weight: 600;
       color: var(--accent);
     }
-
     .calendar-grid .today {
       background: var(--accent);
       color: #fff;
     }
+    .calendar-grid .has-note::after {
+      content: '•';
+      position: absolute;
+      bottom: 4px;
+      right: 4px;
+      color: #e74c3c;
+      font-size: 1rem;
+    }
 
-    /* ===== Модалка ===== */
+    /* ===== Модальное окно ===== */
     .modal {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -122,9 +145,7 @@
       align-items: center;
       z-index: 100;
     }
-
     .modal.active { display: flex; }
-
     .modal-content {
       background: var(--menu-bg);
       padding: 1rem;
@@ -132,28 +153,31 @@
       width: 90%;
       max-width: 320px;
       box-shadow: var(--shadow);
-      transition: transform 0.3s ease-in-out;
-    }
-
-    /* ===== Адаптив ===== */
-    @media (max-width: 500px) {
-      .calendar-container,
-      .notes-section {
-        margin: 1rem;
-      }
-
-      .calendar-grid div {
-        padding: 0.4rem 0;
-        font-size: 0.85rem;
-      }
     }
   </style>
 </head>
 <body>
+  <!-- Заголовок с логотипом и кнопками -->
   <header>
-    <img src="logo.png" alt="HedRed Logo" />
-    <button class="menu-button" id="burger-menu">☰</button>
+    <div class="left">
+      <a href="index.html" class="logo">HedRed</a>
+    </div>
+    <div style="display: flex; align-items: center; gap: 1rem;">
+      <button class="login-btn">Войти</button>
+      <div class="menu-btn" onclick="toggleMenu()">☰</div>
+    </div>
   </header>
+
+  <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+
+  <nav class="side-menu" id="sideMenu">
+    <div class="close-btn" onclick="toggleMenu()">×</div>
+    <a href="Calendar/index.html">Календарь</a>
+    <a href="Notif/index.html">Уведомления</a>
+    <a href="Rem/index.html">Напоминания</a>
+    <a href="Achiev/index.html">Достижения</a>
+    <a href="Set/index.html">Настройки</a>
+  </nav>
 
   <div class="calendar-container">
     <div class="calendar-header">
@@ -162,14 +186,9 @@
       <button id="next-month">&gt;</button>
     </div>
     <div class="calendar-grid" id="calendar-grid">
-      <!-- JS будет вставлять дни недели и числа сюда -->
+      <!-- Здесь JS вставит дни недели и числа -->
     </div>
   </div>
-
-  <section class="notes-section">
-    <h3>Активные напоминания</h3>
-    <ul id="notes-list"></ul>
-  </section>
 
   <!-- Модалка -->
   <div class="modal" id="note-modal">
@@ -195,7 +214,129 @@
   </div>
 
   <script>
-    // Логика календаря и заметок (оставляем как есть, без изменений)
+    // ===== Логика календаря и заметок =====
+    document.addEventListener('DOMContentLoaded', () => {
+      const calendarGrid = document.getElementById('calendar-grid');
+      const monthYear = document.getElementById('month-year');
+      const prevBtn = document.getElementById('prev-month');
+      const nextBtn = document.getElementById('next-month');
+
+      const modal = document.getElementById('note-modal');
+      const form = document.getElementById('note-form');
+      const displayDate = document.getElementById('display-date');
+      const noteDateInput = document.getElementById('note-date');
+      const noteIdInput = document.getElementById('note-id');
+      const noteText = document.getElementById('note-text');
+      const notePriority = document.getElementById('note-priority');
+      const cancelBtn = document.getElementById('modal-cancel');
+      const notesList = document.getElementById('notes-list');
+
+      let current = new Date();
+      let events = JSON.parse(localStorage.getItem('hedredEvents') || '[]');
+
+      function saveEvents() {
+        localStorage.setItem('hedredEvents', JSON.stringify(events));
+      }
+
+      function renderCalendar(date) {
+        calendarGrid.innerHTML = '';
+        const monthNames = ['Январь','Февраль','Март','Апрель','Май','Июнь',
+                            'Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+        monthYear.textContent = monthNames[date.getMonth()] + ' ' + date.getFullYear();
+
+        ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].forEach(d => {
+          const div = document.createElement('div');
+          div.classList.add('weekday');
+          div.textContent = d;
+          calendarGrid.appendChild(div);
+        });
+
+        const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+        const offset = (firstDay.getDay() + 6) % 7;
+
+        for (let i = 0; i < offset; i++) {
+          calendarGrid.appendChild(document.createElement('div'));
+        }
+
+        const daysInMonth = new Date(date.getFullYear(), date.getMonth()+1, 0).getDate();
+        for (let day=1; day<=daysInMonth; day++) {
+          const cell = document.createElement('div');
+          cell.textContent = day;
+          const cellDate = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+
+          const today = new Date();
+          if (cellDate === `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`) {
+            cell.classList.add('today');
+          }
+
+          if (events.some(ev => ev.date === cellDate)) {
+            cell.classList.add('has-note');
+          }
+
+          cell.addEventListener('click', () => openModal(cellDate));
+          calendarGrid.appendChild(cell);
+        }
+      }
+
+      function openModal(date, note=null) {
+        noteDateInput.value = date;
+        displayDate.textContent = date;
+        if (note) {
+          noteIdInput.value = note.id;
+          noteText.value = note.text;
+          notePriority.value = note.priority;
+          document.getElementById('modal-title').textContent = 'Редактировать заметку';
+        } else {
+          noteIdInput.value = '';
+          noteText.value = '';
+          notePriority.value = 'normal';
+          document.getElementById('modal-title').textContent = 'Добавить заметку';
+        }
+        modal.classList.add('active');
+      }
+
+      cancelBtn.addEventListener('click', () => modal.classList.remove('active'));
+
+      form.addEventListener('submit', e => {
+        e.preventDefault();
+        const id = noteIdInput.value || Date.now().toString();
+        const existing = events.find(ev => ev.id === id);
+
+        if (existing) {
+          existing.text = noteText.value;
+          existing.priority = notePriority.value;
+        } else {
+          events.push({
+            id,
+            date: noteDateInput.value,
+            text: noteText.value,
+            priority: notePriority.value
+          });
+        }
+
+        saveEvents();
+        renderCalendar(current);
+        modal.classList.remove('active');
+      });
+
+      prevBtn.addEventListener('click', () => {
+        current.setMonth(current.getMonth() - 1);
+        renderCalendar(current);
+      });
+
+      nextBtn.addEventListener('click', () => {
+        current.setMonth(current.getMonth() + 1);
+        renderCalendar(current);
+      });
+
+      renderCalendar(current);
+    });
+
+    // ===== Логика бокового меню =====
+    function toggleMenu() {
+      document.getElementById('sideMenu').classList.toggle('open');
+      document.getElementById('overlay').classList.toggle('active');
+    }
   </script>
 </body>
 </html>
