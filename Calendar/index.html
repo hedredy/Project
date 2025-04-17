@@ -12,173 +12,171 @@
       --menu-bg: #ffffff;
       --text-color: #000000;
       --accent: #007aff;
-      --shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
-      --border-radius: 20px;
+      --shadow: 0 4px 10px rgba(0,0,0,0.1);
+      --border-radius: 16px;
       --cell-size: 48px;
+      --input-height: 44px;
     }
     * {
-      margin: 0; padding: 0; box-sizing: border-box;
-      font-family: 'Segoe UI', sans-serif;
-      user-select: none;
+      margin:0; padding:0; box-sizing:border-box;
+      font-family:'Segoe UI',sans-serif;
+      -webkit-user-select:none; user-select:none;
     }
     body {
-      background-color: var(--main-bg);
-      color: var(--text-color);
-      overflow-x: hidden;
+      background:var(--main-bg); color:var(--text-color);
+      overflow-x:hidden;
     }
-    a { text-decoration: none; color: inherit; cursor: pointer; }
+    a { text-decoration:none; color:inherit; cursor:pointer; }
 
-    /* ===== Header ===== */
+    /* Header & Menu */
     header {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 1rem 1.2rem; background-color: var(--menu-bg);
-      box-shadow: var(--shadow); position: sticky; top: 0; z-index: 1001;
+      display:flex; justify-content:space-between; align-items:center;
+      padding:1rem; background:var(--menu-bg);
+      box-shadow:var(--shadow); position:sticky; top:0; z-index:1000;
     }
-    .left {
-      display: flex; align-items: center; gap: 1rem;
-    }
-    .logo {
-      font-size: 1.5rem; font-weight: 600; color: var(--accent);
-    }
+    .logo { font-size:1.5rem; font-weight:600; color:var(--accent); }
     .login-btn {
-      padding: 0.4rem 0.9rem; background-color: var(--accent);
-      color: white; border: none; border-radius: 12px;
-      font-size: 1rem; cursor: pointer; transition: 0.2s ease;
+      background:var(--accent); color:#fff; border:none;
+      padding:0.5rem 1rem; border-radius:12px; cursor:pointer;
+      transition:background .2s;
     }
-    .login-btn:hover { background-color: #005fcc; }
-    .menu-btn {
-      font-size: 1.6rem; cursor: pointer;
-      color: var(--text-color); padding: 0.3rem 0.6rem;
-    }
+    .login-btn:hover { background:#005fcc; }
+    .menu-btn { font-size:1.6rem; cursor:pointer; }
 
-    /* ===== Overlay & Sidebar ===== */
     .overlay {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.3);
-      opacity: 0; visibility: hidden;
-      transition: opacity .3s, visibility .3s;
-      z-index: 1000;
+      position:fixed; top:0; left:0; right:0; bottom:0;
+      background:rgba(0,0,0,0.3);
+      opacity:0; visibility:hidden;
+      transition:opacity .3s, visibility .3s;
+      z-index:900;
     }
-    .overlay.active { opacity: 1; visibility: visible; }
+    .overlay.active { opacity:1; visibility:visible; }
+
     .side-menu {
-      position: fixed; top: 0; right: -100%; width: 280px; height: 100%;
-      background-color: var(--menu-bg);
-      box-shadow: -4px 0 12px rgba(0, 0, 0, 0.1);
-      border-top-left-radius: var(--border-radius);
-      border-bottom-left-radius: var(--border-radius);
-      transition: right 0.3s ease; z-index: 1002; padding-top: 60px;
+      position:fixed; top:0; right:-100%; width:280px; height:100%;
+      background:var(--menu-bg); box-shadow:-4px 0 12px rgba(0,0,0,0.1);
+      border-top-left-radius:var(--border-radius);
+      border-bottom-left-radius:var(--border-radius);
+      transition:right .3s; z-index:1000; padding-top:60px;
     }
-    .side-menu.active { right: 0; }
+    .side-menu.active { right:0; }
     .side-menu a {
-      display: block; padding: 16px 24px; font-size: 1.1rem;
-      color: var(--text-color); border-bottom: 1px solid #eee;
+      display:block; padding:16px 24px; font-size:1.1rem;
+      border-bottom:1px solid #eee;
     }
-    .side-menu a:hover { background-color: #f0f0f0; }
-    .close-btn {
-      position: absolute; top: 14px; right: 20px;
-      font-size: 1.5rem; cursor: pointer; color: #888;
-    }
-    @media (max-width: 768px) {
-      .side-menu { width: 50%; }
+    .side-menu .close-btn {
+      position:absolute; top:14px; right:20px;
+      font-size:1.5rem; cursor:pointer; color:#888;
     }
 
-    /* ===== Main & Calendar ===== */
-    main { padding: 80px 1rem 2rem; }
+    /* Calendar */
+    main { padding:80px 1rem 2rem; }
     .calendar-container {
-      max-width: 400px; margin: 0 auto;
-      background: var(--menu-bg); border-radius: var(--border-radius);
-      box-shadow: var(--shadow); padding: 1rem;
-      animation: fadeIn .4s ease;
+      max-width:400px; margin:0 auto;
+      background:var(--menu-bg); border-radius:var(--border-radius);
+      box-shadow:var(--shadow); padding:1rem;
     }
     .calendar-header {
-      display: flex; justify-content: space-between; align-items: center;
-      margin-bottom: 0.5rem;
+      display:flex; justify-content:space-between; align-items:center;
+      margin-bottom:0.5rem;
     }
     .calendar-header button {
-      background: none; border: none; font-size: 1.5rem;
-      color: var(--accent); cursor: pointer; transition: transform .2s;
+      background:none; border:none; font-size:1.5rem;
+      color:var(--accent); cursor:pointer; transition:transform .2s;
     }
-    .calendar-header button:hover { transform: scale(1.1); }
-    #month-year { font-weight: 600; }
+    .calendar-header button:hover { transform:scale(1.1); }
+    #month-year { font-weight:600; }
     .calendar-grid {
-      display: grid; grid-template-columns: repeat(7, 1fr);
-      gap: 0.25rem;
+      display:grid; grid-template-columns:repeat(7,1fr);
+      gap:0.25rem;
     }
-    .calendar-grid .weekday,
-    .calendar-grid .day {
-      width: var(--cell-size); height: var(--cell-size);
-      line-height: var(--cell-size); text-align: center;
-      border-radius: 6px; user-select: none;
-      overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+    .weekday, .day {
+      width:var(--cell-size); height:var(--cell-size);
+      line-height:var(--cell-size); text-align:center;
+      border-radius:8px; user-select:none;
+      overflow:hidden; white-space:nowrap; text-overflow:ellipsis;
     }
-    .calendar-grid .weekday {
-      font-weight: 600; color: var(--accent);
+    .weekday { font-weight:600; color:var(--accent); }
+    .day {
+      background:#f1f4f7; position:relative;
     }
-    .calendar-grid .day {
-      background: #f1f4f7; cursor: default;
-      transition: background .2s; position: relative;
-    }
-    .calendar-grid .day.enable {
-      cursor: pointer;
-    }
-    .calendar-grid .day.enable:hover {
-      background: rgba(0,122,255,0.1);
-    }
-    .calendar-grid .today {
-      background: var(--accent); color: #fff; font-weight: 600;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to   { opacity: 1; transform: translateY(0); }
+    .day.enable { cursor:pointer; }
+    .day.enable:hover { background:rgba(0,122,255,0.1); }
+    .today { background:var(--accent); color:#fff; font-weight:600; }
+    .has-note::after {
+      content:'●'; position:absolute; right:4px; bottom:4px;
+      color:#e74c3c; font-size:0.75rem;
     }
 
-    /* ===== Notes ===== */
+    /* Notes Section */
     .notes-section {
-      max-width: 400px; margin: 1.5rem auto 0;
-      background: var(--menu-bg); padding: 1rem;
-      border-radius: var(--border-radius); box-shadow: var(--shadow);
-      animation: fadeIn .4s ease;
+      max-width:400px; margin:1.5rem auto 0;
+      background:var(--menu-bg); padding:1rem;
+      border-radius:var(--border-radius); box-shadow:var(--shadow);
     }
-    .notes-section h3 { margin-bottom: 0.5rem; }
-    #notes-list { list-style: none; }
+    .notes-section h3 { margin-bottom:0.5rem; }
+    #notes-list { list-style:none; }
     #notes-list li {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 0.5rem; margin-bottom: 0.5rem; background: #fff;
-      border-left: 4px solid; border-radius: 4px;
-      overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+      display:flex; justify-content:space-between; align-items:center;
+      padding:0.5rem; margin-bottom:0.5rem; background:#fff;
+      border-left:4px solid; border-radius:6px;
+      overflow:hidden; white-space:nowrap; text-overflow:ellipsis;
     }
-    #notes-list li[data-priority="low"]    { border-color: #2ecc71; }
-    #notes-list li[data-priority="normal"] { border-color: var(--accent); }
-    #notes-list li[data-priority="high"]   { border-color: #ff3b30; }
-    .note-info { flex: 1; margin-right: 0.5rem; }
+    #notes-list li[data-priority="low"]    { border-color:#2ecc71; }
+    #notes-list li[data-priority="normal"] { border-color:var(--accent); }
+    #notes-list li[data-priority="high"]   { border-color:#ff3b30; }
+    .note-info { flex:1; margin-right:0.5rem; }
     .note-actions button {
-      background: none; border: none; font-size: 1rem; margin-left: 0.3rem;
-      cursor: pointer; transition: color .2s;
+      background:none; border:none; font-size:1rem; margin-left:0.3rem;
+      cursor:pointer; transition:color .2s;
     }
-    .note-actions button:hover { color: var(--accent); }
+    .note-actions button:hover { color:var(--accent); }
 
-    /* ===== Modal ===== */
+    /* Note Modal / iOS style */
     .modal {
-      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.4); display: none;
-      justify-content: center; align-items: center; z-index: 1010;
+      position:fixed; top:0; left:0; right:0; bottom:0;
+      background:rgba(0,0,0,0.4); display:none;
+      justify-content:center; align-items:center; z-index:1001;
     }
-    .modal.active { display: flex; animation: fadeIn .3s; }
+    .modal.active { display:flex; }
     .modal-content {
-      background: var(--menu-bg); padding: 1rem; border-radius: var(--border-radius);
-      width: 90%; max-width: 320px; box-shadow: var(--shadow);
-      display: flex; flex-direction: column; gap: 0.5rem;
-      text-align: center;
+      width:90%; max-width:320px;
+      background:var(--menu-bg); padding:1rem;
+      border-radius:var(--border-radius); box-shadow:var(--shadow);
+      display:flex; flex-direction:column; gap:0.75rem;
     }
-    .modal-content img {
-      width: 100%; border-radius: var(--border-radius);
+    .modal-content label {
+      font-size:0.875rem; color:#555;
     }
-    .modal-content button {
-      margin-top: 0.5rem; padding: 0.5rem 1rem;
-      background: var(--accent); color: #fff;
-      border: none; border-radius: 6px; cursor: pointer;
+    .modal-content textarea,
+    .modal-content select {
+      height: var(--input-height);
+      padding:0 0.75rem;
+      border:1px solid #ccc; border-radius:12px;
+      font-size:1rem; outline:none;
+      resize:none;
     }
-    .modal-content button:hover { background: #005fcc; }
+    .modal-actions {
+      display:flex; justify-content:flex-end; gap:0.5rem;
+    }
+    .modal-actions button {
+      padding:0.5rem 1rem; font-size:1rem;
+      border:none; border-radius:12px; cursor:pointer;
+    }
+    #modal-cancel {
+      background:#eee; color:#333;
+    }
+    #note-form button[type="submit"] {
+      background:var(--accent); color:#fff;
+    }
+
+    /* Photo Modal */
+    .photo-modal .modal-content {
+      padding:0.5rem; text-align:center;
+    }
+    .photo-modal img {
+      width:100%; border-radius:12px;
+    }
   </style>
 </head>
 <body>
@@ -187,7 +185,7 @@
     <div class="left">
       <a href="https://hedred.ru" class="logo">HedRed</a>
     </div>
-    <div style="display: flex; align-items: center; gap: 1rem;">
+    <div style="display:flex; align-items:center; gap:1rem;">
       <button class="login-btn">Войти</button>
       <div class="menu-btn" onclick="toggleMenu()">☰</div>
     </div>
@@ -220,165 +218,13 @@
     </section>
   </main>
 
-  <!-- Модалка с фото -->
-  <div class="modal" id="photo-modal">
-    <div class="modal-content">
-      <img src="Calendar/photo_2025-04-17_21-42-30.jpg" alt="Фото" />
-      <button onclick="closePhoto()">Закрыть</button>
-    </div>
-  </div>
-
-  <script>
-    // ===== Sidebar Toggle =====
-    function toggleMenu() {
-      document.getElementById('sideMenu').classList.toggle('active');
-      document.getElementById('overlay').classList.toggle('active');
-    }
-
-    // ===== Calendar & Notes Logic =====
-    document.addEventListener('DOMContentLoaded', () => {
-      const grid = document.getElementById('calendar-grid');
-      const monthYear = document.getElementById('month-year');
-      const prev = document.getElementById('prev-month');
-      const next = document.getElementById('next-month');
-      const photoModal = document.getElementById('photo-modal');
-      const noteModal = document.getElementById('note-modal');
-      const form = document.getElementById('note-form');
-      const noteDateLabel = document.getElementById('note-date');
-      const noteText = document.getElementById('note-text');
-      const notePri = document.getElementById('note-priority');
-      const cancel = document.getElementById('modal-cancel');
-      const notesSection = document.getElementById('notes-section');
-      const list = document.getElementById('notes-list');
-
-      const today = new Date().toISOString().slice(0,10); // YYYY-MM-DD
-      let current = new Date();
-      let events = JSON.parse(localStorage.getItem('hedredEvents') || '[]');
-      let editId = null;
-
-      function save() {
-        localStorage.setItem('hedredEvents', JSON.stringify(events));
-      }
-
-      function render() {
-        grid.innerHTML = '';
-        const y = current.getFullYear(), m = current.getMonth();
-        monthYear.textContent = current.toLocaleString('ru-RU', { month:'long', year:'numeric' });
-
-        // Weekdays
-        ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].forEach(d => {
-          const w = document.createElement('div');
-          w.textContent = d; w.className = 'weekday';
-          grid.appendChild(w);
-        });
-
-        // Empty before first
-        const offset = (new Date(y,m,1).getDay() + 6) % 7;
-        for(let i=0; i<offset; i++) grid.appendChild(document.createElement('div'));
-
-        // Days
-        const days = new Date(y,m+1,0).getDate();
-        for(let d=1; d<=days; d++){
-          const cell = document.createElement('div');
-          cell.className = 'day';
-          cell.textContent = d;
-          const dateStr = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-
-          // Today highlight
-          if(dateStr === today) cell.classList.add('today');
-
-          // Past: photo
-          if(dateStr < today) {
-            cell.classList.add('enable');
-            cell.onclick = () => photoModal.classList.add('active');
-          }
-          // Today & future: notes
-          else {
-            cell.classList.add('enable');
-            cell.onclick = () => openNoteModal(dateStr);
-          }
-
-          grid.appendChild(cell);
-        }
-      }
-
-      function openNoteModal(date) {
-        noteDateLabel.textContent = date;
-        noteText.value = '';
-        notePri.value = 'normal';
-        editId = null;
-        document.getElementById('modal-title').textContent = 'Добавить заметку';
-        noteModal.classList.add('active');
-      }
-      cancel.onclick = () => noteModal.classList.remove('active');
-      function closePhoto() { photoModal.classList.remove('active'); }
-
-      form.onsubmit = e => {
-        e.preventDefault();
-        const dt = noteDateLabel.textContent;
-        const txt = noteText.value.trim();
-        if(!txt) return;
-        if(editId) {
-          const ev = events.find(x=>x.id===editId);
-          ev.text = txt; ev.priority = notePri.value;
-        } else {
-          events.push({ id: Date.now(), date: dt, text: txt, priority: notePri.value });
-        }
-        save(); noteModal.classList.remove('active');
-        render(); renderList();
-      };
-
-      function renderList() {
-        list.innerHTML = '';
-        if(events.length === 0) {
-          notesSection.style.display = 'none';
-        } else {
-          notesSection.style.display = '';
-        }
-        events.sort((a,b) => a.date < b.date ? -1 : 1).forEach(ev => {
-          const li = document.createElement('li');
-          li.dataset.priority = ev.priority;
-          li.innerHTML = `
-            <div class="note-info">
-              <div class="note-date">${ev.date}</div>
-              <div class="note-text">${ev.text}</div>
-            </div>
-            <div class="note-actions">
-              <button title="Редактировать">✏️</button>
-              <button title="Удалить">✖️</button>
-            </div>`;
-          li.querySelector('[title="Редактировать"]').onclick = () => {
-            editId = ev.id;
-            document.getElementById('modal-title').textContent = 'Редактировать заметку';
-            noteDateLabel.textContent = ev.date;
-            noteText.value = ev.text;
-            notePri.value = ev.priority;
-            noteModal.classList.add('active');
-          };
-          li.querySelector('[title="Удалить"]').onclick = () => {
-            if(confirm('Удалить заметку?')) {
-              events = events.filter(x => x.id !== ev.id);
-              save(); render(); renderList();
-            }
-          };
-          list.appendChild(li);
-        });
-      }
-
-      prev.onclick = () => { current.setMonth(current.getMonth()-1); render(); };
-      next.onclick = () => { current.setMonth(current.getMonth()+1); render(); };
-
-      render(); renderList();
-    });
-  </script>
-
-  <!-- Модалка заметок -->
+  <!-- Note Modal -->
   <div class="modal" id="note-modal">
     <div class="modal-content">
       <h3 id="modal-title">Добавить заметку</h3>
       <form id="note-form">
         <label>Дата: <span id="note-date"></span></label>
-        <textarea id="note-text" placeholder="Текст заметки" required></textarea>
+        <textarea id="note-text" placeholder="Введите текст..." required></textarea>
         <label>Важность:</label>
         <select id="note-priority">
           <option value="low">Низкая</option>
@@ -393,5 +239,143 @@
     </div>
   </div>
 
+  <!-- Photo Modal -->
+  <div class="modal photo-modal" id="photo-modal">
+    <div class="modal-content">
+      <img src="Calendar/photo_2025-04-17_21-42-30.jpg" alt="Фото" />
+      <div style="margin-top:0.5rem; text-align:right;">
+        <button onclick="closePhoto()">Закрыть</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function toggleMenu() {
+      document.getElementById('sideMenu').classList.toggle('active');
+      document.getElementById('overlay').classList.toggle('active');
+    }
+    function closePhoto() {
+      document.getElementById('photo-modal').classList.remove('active');
+    }
+
+    document.addEventListener('DOMContentLoaded',() => {
+      const grid = document.getElementById('calendar-grid');
+      const monthYear = document.getElementById('month-year');
+      const prev = document.getElementById('prev-month');
+      const next = document.getElementById('next-month');
+      const noteModal = document.getElementById('note-modal');
+      const photoModal = document.getElementById('photo-modal');
+      const form = document.getElementById('note-form');
+      const noteDateLabel = document.getElementById('note-date');
+      const noteText = document.getElementById('note-text');
+      const notePri = document.getElementById('note-priority');
+      const cancel = document.getElementById('modal-cancel');
+      const notesSection = document.getElementById('notes-section');
+      const list = document.getElementById('notes-list');
+
+      const today = new Date().toISOString().slice(0,10);
+      let current = new Date();
+      let events = JSON.parse(localStorage.getItem('hedredEvents')||'[]');
+      let editId = null;
+
+      function save() {
+        localStorage.setItem('hedredEvents', JSON.stringify(events));
+      }
+
+      function render() {
+        grid.innerHTML = '';
+        const y = current.getFullYear(), m = current.getMonth();
+        monthYear.textContent = current.toLocaleString('ru-RU',{month:'long',year:'numeric'});
+        ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].forEach(d=> {
+          const w=document.createElement('div'); w.className='weekday'; w.textContent=d;
+          grid.appendChild(w);
+        });
+        const offset=(new Date(y,m,1).getDay()+6)%7;
+        for(let i=0;i<offset;i++) grid.appendChild(document.createElement('div'));
+
+        const days = new Date(y,m+1,0).getDate();
+        for(let d=1;d<=days;d++){
+          const cell=document.createElement('div');
+          cell.className='day';
+          cell.textContent=d;
+          const dateStr=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+
+          if(dateStr===today) cell.classList.add('today');
+          if(events.some(e=>e.date===dateStr)) cell.classList.add('has-note');
+
+          if(dateStr<'2009-01-15'){ /* past before 15th */ }
+          else if(dateStr==='2009-01-15'){
+            cell.classList.add('enable');
+            cell.onclick = ()=> photoModal.classList.add('active');
+          } else if(dateStr>=today){
+            cell.classList.add('enable');
+            cell.onclick = ()=> openNote(dateStr);
+          }
+          grid.appendChild(cell);
+        }
+      }
+
+      function openNote(dt){
+        noteDateLabel.textContent=dt;
+        noteText.value=''; notePri.value='normal'; editId=null;
+        document.getElementById('modal-title').textContent='Добавить заметку';
+        noteModal.classList.add('active');
+      }
+      cancel.onclick = ()=> noteModal.classList.remove('active');
+
+      form.onsubmit = e=>{
+        e.preventDefault();
+        const dt=noteDateLabel.textContent, txt=noteText.value.trim();
+        if(!txt) return;
+        if(editId){
+          const ev=events.find(x=>x.id===editId);
+          ev.text=txt; ev.priority=notePri.value;
+        } else {
+          events.push({id:Date.now(),date:dt,text:txt,priority:notePri.value});
+        }
+        save(); noteModal.classList.remove('active');
+        render(); renderList();
+      };
+
+      function renderList(){
+        list.innerHTML='';
+        if(events.length===0) notesSection.style.display='none';
+        else notesSection.style.display='';
+        events.sort((a,b)=>a.date<b.date?-1:1).forEach(ev=>{
+          const li=document.createElement('li');
+          li.dataset.priority=ev.priority;
+          li.innerHTML=`
+            <div class="note-info">
+              <div class="note-date">${ev.date}</div>
+              <div class="note-text">${ev.text}</div>
+            </div>
+            <div class="note-actions">
+              <button title="Редактировать">✏️</button>
+              <button title="Удалить">✖️</button>
+            </div>`;
+          li.querySelector('[title="Редактировать"]').onclick=()=>{
+            editId=ev.id;
+            document.getElementById('modal-title').textContent='Редактировать заметку';
+            noteDateLabel.textContent=ev.date;
+            noteText.value=ev.text;
+            notePri.value=ev.priority;
+            noteModal.classList.add('active');
+          };
+          li.querySelector('[title="Удалить"]').onclick=()=>{
+            if(confirm('Удалить заметку?')){
+              events=events.filter(x=>x.id!==ev.id);
+              save(); render(); renderList();
+            }
+          };
+          list.appendChild(li);
+        });
+      }
+
+      prev.onclick=()=>{ current.setMonth(current.getMonth()-1); render(); };
+      next.onclick=()=>{ current.setMonth(current.getMonth()+1); render(); };
+
+      render(); renderList();
+    });
+  </script>
 </body>
 </html>
