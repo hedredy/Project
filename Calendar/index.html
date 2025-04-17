@@ -15,8 +15,7 @@
       --shadow: 0 4px 10px rgba(0,0,0,0.1);
       --border-radius: 16px;
       --cell-size: 48px;
-      --input-height: 48px;
-      --modal-width: 360px;
+      --input-height: 44px;
     }
     * {
       margin:0; padding:0; box-sizing:border-box;
@@ -141,13 +140,13 @@
     }
     .modal.active { display:flex; }
     .modal-content {
-      width:var(--modal-width);
-      background:var(--menu-bg); padding:1.5rem;
+      width:90%; max-width:320px;
+      background:var(--menu-bg); padding:1rem;
       border-radius:var(--border-radius); box-shadow:var(--shadow);
-      display:flex; flex-direction:column; gap:1rem;
+      display:flex; flex-direction:column; gap:0.75rem;
     }
     .modal-content label {
-      font-size:1rem; color:#555; margin-bottom:0.5rem;
+      font-size:0.875rem; color:#555;
     }
     .modal-content textarea,
     .modal-content select {
@@ -161,7 +160,7 @@
       display:flex; justify-content:flex-end; gap:0.5rem;
     }
     .modal-actions button {
-      padding:0.5rem 1.25rem; font-size:1.1rem;
+      padding:0.5rem 1rem; font-size:1rem;
       border:none; border-radius:12px; cursor:pointer;
     }
     #modal-cancel {
@@ -199,137 +198,183 @@
     <a href="index.html">Календарь</a>
     <a href="../Notif/index.html">Уведомления</a>
     <a href="../Rem/index.html">Напоминания</a>
-    <a href="../settings/index.html">Настройки</a>
+    <a href="../Achiev/index.html">Достижения</a>
+    <a href="../Set/index.html">Настройки</a>
   </nav>
 
   <main>
     <div class="calendar-container">
       <div class="calendar-header">
-        <button id="prevMonthBtn">◁</button>
-        <div id="month-year"></div>
-        <button id="nextMonthBtn">▷</button>
+        <button id="prev-month">‹</button>
+        <h2 id="month-year"></h2>
+        <button id="next-month">›</button>
       </div>
-      <div class="calendar-grid">
-        <div class="weekday">Пн</div>
-        <div class="weekday">Вт</div>
-        <div class="weekday">Ср</div>
-        <div class="weekday">Чт</div>
-        <div class="weekday">Пт</div>
-        <div class="weekday">Сб</div>
-        <div class="weekday">Вс</div>
-      </div>
-      <div id="days" class="calendar-grid"></div>
+      <div class="calendar-grid" id="calendar-grid"></div>
     </div>
+
+    <section class="notes-section" id="notes-section">
+      <h3>Заметки</h3>
+      <ul id="notes-list"></ul>
+    </section>
   </main>
 
-  <div class="notes-section">
-    <h3>Заметки</h3>
-    <ul id="notes-list"></ul>
-  </div>
-
-  <div class="modal" id="noteModal">
+  <!-- Note Modal -->
+  <div class="modal" id="note-modal">
     <div class="modal-content">
+      <h3 id="modal-title">Добавить заметку</h3>
       <form id="note-form">
-        <label for="note-text">Заметка:</label>
-        <textarea id="note-text" rows="4"></textarea>
-        <label for="note-priority">Приоритет:</label>
+        <label>Дата: <span id="note-date"></span></label>
+        <textarea id="note-text" placeholder="Введите текст..." required></textarea>
+        <label>Важность:</label>
         <select id="note-priority">
-          <option value="low">Низкий</option>
-          <option value="normal" selected>Обычный</option>
-          <option value="high">Высокий</option>
+          <option value="low">Низкая</option>
+          <option value="normal" selected>Обычная</option>
+          <option value="high">Высокая</option>
         </select>
         <div class="modal-actions">
-          <button type="button" id="modal-cancel" onclick="closeModal()">Отмена</button>
+          <button type="button" id="modal-cancel">Отмена</button>
           <button type="submit">Сохранить</button>
         </div>
       </form>
     </div>
   </div>
 
-  <div class="modal photo-modal" id="photoModal">
+  <!-- Photo Modal -->
+  <div class="modal photo-modal" id="photo-modal">
     <div class="modal-content">
-      <img src="https://github.com/hedredy/Project/blob/90abe1764bada10d7441c0bb0a7f59073671db60/Calendar/photo_2025-04-17_21-42-30.jpg?raw=true" alt="Фото дня">
+      <img src="https://github.com/hedredy/Project/blob/90abe1764bada10d7441c0bb0a7f59073671db60/Calendar/photo_2025-04-17_21-42-30.jpg" alt="Фото" />
+      <div style="margin-top:0.5rem; text-align:right;">
+        <button onclick="closePhoto()">Закрыть</button>
+      </div>
     </div>
   </div>
 
   <script>
-    // Toggle side menu
     function toggleMenu() {
       document.getElementById('sideMenu').classList.toggle('active');
       document.getElementById('overlay').classList.toggle('active');
     }
-
-    // Modal handling
-    function closeModal() {
-      document.getElementById('noteModal').classList.remove('active');
+    function closePhoto() {
+      document.getElementById('photo-modal').classList.remove('active');
     }
 
-    function openModal() {
-      document.getElementById('noteModal').classList.add('active');
-    }
+    document.addEventListener('DOMContentLoaded',() => {
+      const grid = document.getElementById('calendar-grid');
+      const monthYear = document.getElementById('month-year');
+      const prev = document.getElementById('prev-month');
+      const next = document.getElementById('next-month');
+      const noteModal = document.getElementById('note-modal');
+      const photoModal = document.getElementById('photo-modal');
+      const form = document.getElementById('note-form');
+      const noteDateLabel = document.getElementById('note-date');
+      const noteText = document.getElementById('note-text');
+      const notePri = document.getElementById('note-priority');
+      const cancel = document.getElementById('modal-cancel');
+      const notesSection = document.getElementById('notes-section');
+      const list = document.getElementById('notes-list');
 
-    // Calendar logic
-    let currentMonth = new Date().getMonth();
-    let currentYear = new Date().getFullYear();
+      const today = new Date().toISOString().slice(0,10);
+      let current = new Date();
+      let events = JSON.parse(localStorage.getItem('hedredEvents')||'[]');
+      let editId = null;
 
-    const monthNames = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
-
-    function renderCalendar() {
-      document.getElementById("month-year").textContent = `${monthNames[currentMonth]} ${currentYear}`;
-
-      const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay();
-      const lastDateOfMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-      const daysContainer = document.getElementById("days");
-
-      daysContainer.innerHTML = "";
-
-      for (let i = 1; i < firstDayOfMonth; i++) {
-        const emptyCell = document.createElement("div");
-        emptyCell.classList.add("day");
-        daysContainer.appendChild(emptyCell);
+      function save() {
+        localStorage.setItem('hedredEvents', JSON.stringify(events));
       }
 
-      for (let date = 1; date <= lastDateOfMonth; date++) {
-        const dayCell = document.createElement("div");
-        dayCell.classList.add("day", "enable");
-        dayCell.textContent = date;
+      function render() {
+        grid.innerHTML = '';
+        const y = current.getFullYear(), m = current.getMonth();
+        monthYear.textContent = current.toLocaleString('ru-RU',{month:'long',year:'numeric'});
+        ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].forEach(d=> {
+          const w=document.createElement('div'); w.className='weekday'; w.textContent=d;
+          grid.appendChild(w);
+        });
+        const offset=(new Date(y,m,1).getDay()+6)%7;
+        for(let i=0;i<offset;i++) grid.appendChild(document.createElement('div'));
 
-        // Add click listener for future dates
-        if (new Date(currentYear, currentMonth, date) > new Date()) {
-          dayCell.addEventListener("click", () => openModal());
-        } else {
-          dayCell.style.pointerEvents = "none";
+        const days = new Date(y,m+1,0).getDate();
+        for(let d=1;d<=days;d++){
+          const cell=document.createElement('div');
+          cell.className='day';
+          cell.textContent=d;
+          const dateStr=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+
+          if(dateStr===today) cell.classList.add('today');
+          if(events.some(e=>e.date===dateStr)) cell.classList.add('has-note');
+
+          if(dateStr<'2009-01-15'){ /* past before 15th */ }
+          else if(dateStr==='2009-01-15'){
+            cell.classList.add('enable');
+            cell.onclick = ()=> photoModal.classList.add('active');
+          } else if(dateStr>=today){
+            cell.classList.add('enable');
+            cell.onclick = ()=> openNote(dateStr);
+          }
+          grid.appendChild(cell);
         }
-
-        daysContainer.appendChild(dayCell);
       }
-    }
 
-    renderCalendar();
-
-    document.getElementById("prevMonthBtn").addEventListener("click", () => {
-      currentMonth--;
-      if (currentMonth < 0) {
-        currentMonth = 11;
-        currentYear--;
+      function openNote(dt){
+        noteDateLabel.textContent=dt;
+        noteText.value=''; notePri.value='normal'; editId=null;
+        document.getElementById('modal-title').textContent='Добавить заметку';
+        noteModal.classList.add('active');
       }
-      renderCalendar();
-    });
+      cancel.onclick = ()=> noteModal.classList.remove('active');
 
-    document.getElementById("nextMonthBtn").addEventListener("click", () => {
-      currentMonth++;
-      if (currentMonth > 11) {
-        currentMonth = 0;
-        currentYear++;
+      form.onsubmit = e=>{
+        e.preventDefault();
+        const dt=noteDateLabel.textContent, txt=noteText.value.trim();
+        if(!txt) return;
+        if(editId){
+          const ev=events.find(x=>x.id===editId);
+          ev.text=txt; ev.priority=notePri.value;
+        } else {
+          events.push({id:Date.now(),date:dt,text:txt,priority:notePri.value});
+        }
+        save(); noteModal.classList.remove('active');
+        render(); renderList();
+      };
+
+      function renderList(){
+        list.innerHTML='';
+        if(events.length===0) notesSection.style.display='none';
+        else notesSection.style.display='';
+        events.sort((a,b)=>a.date<b.date?-1:1).forEach(ev=>{
+          const li=document.createElement('li');
+          li.dataset.priority=ev.priority;
+          li.innerHTML=`
+            <div class="note-info">
+              <div class="note-date">${ev.date}</div>
+              <div class="note-text">${ev.text}</div>
+            </div>
+            <div class="note-actions">
+              <button title="Редактировать">✏️</button>
+              <button title="Удалить">✖️</button>
+            </div>`;
+          li.querySelector('[title="Редактировать"]').onclick=()=>{
+            editId=ev.id;
+            document.getElementById('modal-title').textContent='Редактировать заметку';
+            noteDateLabel.textContent=ev.date;
+            noteText.value=ev.text;
+            notePri.value=ev.priority;
+            noteModal.classList.add('active');
+          };
+          li.querySelector('[title="Удалить"]').onclick=()=>{
+            if(confirm('Удалить заметку?')){
+              events=events.filter(x=>x.id!==ev.id);
+              save(); render(); renderList();
+            }
+          };
+          list.appendChild(li);
+        });
       }
-      renderCalendar();
-    });
 
-    // Photo Modal handling
-    const photoModal = document.getElementById("photoModal");
-    const photoModalClose = document.querySelector(".photo-modal .modal-content img");
-    photoModalClose.addEventListener("click", () => {
-      photoModal.classList.remove("active");
+      prev.onclick=()=>{ current.setMonth(current.getMonth()-1); render(); };
+      next.onclick=()=>{ current.setMonth(current.getMonth()+1); render(); };
+
+      render(); renderList();
     });
   </script>
 </body>
