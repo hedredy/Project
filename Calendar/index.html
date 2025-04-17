@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Календарь | HedRed</title>
-  <link rel="stylesheet" href="../style.css" />
   <style>
     :root {
       --main-bg: #f7f9fb;
@@ -12,78 +11,80 @@
       --text-color: #000000;
       --accent: #007aff;
       --shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
-      --border-radius: 12px;
+      --border-radius: 20px;
       --cell-size: 48px;
     }
-    * { margin:0; padding:0; box-sizing:border-box; }
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',sans-serif; }
     body {
       background: var(--main-bg);
-      font-family: 'Segoe UI', sans-serif;
       color: var(--text-color);
-      min-height:100vh;
-      overflow-x:hidden;
+      overflow-x: hidden;
     }
-    a { text-decoration:none; color:inherit; cursor:pointer; }
+    a { text-decoration:none; color:inherit; }
 
     /* ===== Header ===== */
     header {
-      position:fixed; top:0; left:0; right:0;
-      height:56px; background:var(--menu-bg);
-      box-shadow:var(--shadow); z-index:1000;
-      display:flex; align-items:center; justify-content:space-between;
-      padding: 0 1rem;
+      display:flex; justify-content:space-between; align-items:center;
+      padding:1rem 1.2rem; background:var(--menu-bg);
+      box-shadow:var(--shadow); position:sticky; top:0; z-index:1001;
     }
-    .logo { font-size:1.25rem; font-weight:600; color:var(--accent); }
-    .logo, .menu-btn { user-select:none; }
+    .left { display:flex; align-items:center; gap:1rem; }
+    .logo {
+      font-size:1.5rem; font-weight:600; color:var(--accent);
+      cursor:pointer;
+    }
     .login-btn {
-      background: var(--accent); color:#fff;
-      border:none; padding:0.4rem 1rem;
-      border-radius:8px; cursor:pointer;
-      transition: background .2s;
+      padding:0.4rem 0.9rem; background:var(--accent);
+      color:#fff; border:none; border-radius:12px;
+      font-size:1rem; cursor:pointer; transition:0.2s;
     }
     .login-btn:hover { background:#005fcc; }
     .menu-btn {
-      font-size:1.5rem; margin-left:0.75rem;
-      display:none; cursor:pointer;
+      font-size:1.6rem; cursor:pointer;
+      color:var(--text-color);
+      display:none;
     }
 
-    /* ===== Sidebar ===== */
+    /* ===== Overlay & Sidebar ===== */
     .overlay {
-      position:fixed; top:0; left:0; right:0; bottom:0;
-      background:rgba(0,0,0,0.3); opacity:0; visibility:hidden;
-      transition:opacity .3s, visibility .3s; z-index:999;
+      position:fixed; top:0; left:0; width:100%; height:100%;
+      background:rgba(0,0,0,0.3);
+      opacity:0; visibility:hidden;
+      transition:opacity .3s, visibility .3s;
+      z-index:1000;
     }
     .overlay.active { opacity:1; visibility:visible; }
+
     .side-menu {
-      position:fixed; top:0; right:-280px; width:280px; height:100%;
-      background:var(--menu-bg); padding:1rem 0;
-      box-shadow:-4px 0 12px rgba(0,0,0,0.1);
-      transition:right .3s; z-index:1000;
+      position:fixed; top:0; right:-100%; width:280px; height:100%;
+      background:var(--menu-bg); box-shadow:-4px 0 12px rgba(0,0,0,0.1);
       border-top-left-radius:var(--border-radius);
       border-bottom-left-radius:var(--border-radius);
+      transition:right .3s; z-index:1002; padding-top:60px;
     }
-    .side-menu.open { right:0; }
-    .side-menu .close-btn {
-      position:absolute; top:0.5rem; left:1rem;
-      font-size:1.5rem; cursor:pointer; color:#888;
-    }
+    .side-menu.active { right:0; }
     .side-menu a {
-      display:block; padding:0.8rem 1.5rem;
-      font-size:1.1rem; color:var(--text-color);
-      border-bottom:1px solid #eee;
-      transition:background .2s;
+      display:block; padding:16px 24px; font-size:1.1rem;
+      color:var(--text-color); border-bottom:1px solid #eee;
     }
     .side-menu a:hover { background:#f0f0f0; }
-
-    /* ===== Main Content ===== */
-    main {
-      padding: 72px 1rem 2rem;
+    .close-btn {
+      position:absolute; top:14px; right:20px;
+      font-size:1.5rem; cursor:pointer; color:#888;
     }
+
+    @media(max-width:768px){
+      .menu-btn { display:block; }
+      .side-menu { width:50%; }
+    }
+
+    /* ===== Main ===== */
+    main { padding:80px 1rem 2rem; }
 
     /* ===== Calendar ===== */
     .calendar-container {
-      max-width: 400px; margin:0 auto;
-      background: var(--menu-bg); border-radius:var(--border-radius);
+      max-width:400px; margin:0 auto;
+      background:var(--menu-bg); border-radius:var(--border-radius);
       box-shadow:var(--shadow); padding:1rem;
       animation:fadeIn .4s ease;
     }
@@ -92,7 +93,7 @@
       margin-bottom:0.5rem;
     }
     .calendar-header button {
-      background:none; border:none; font-size:1.25rem;
+      background:none; border:none; font-size:1.5rem;
       color:var(--accent); cursor:pointer;
       transition:transform .2s;
     }
@@ -100,37 +101,35 @@
     #month-year { font-weight:600; }
     .calendar-grid {
       display:grid; grid-template-columns:repeat(7,1fr);
-      gap:0.25rem;
+      gap:0.25rem; position:relative;
     }
-    .calendar-grid .weekday, .calendar-grid .day {
-      width: var(--cell-size); height: var(--cell-size);
-      line-height: var(--cell-size);
-      text-align:center; border-radius:6px;
-      user-select:none;
+    .calendar-grid .weekday,
+    .calendar-grid .day {
+      width:var(--cell-size); height:var(--cell-size);
+      line-height:var(--cell-size); text-align:center;
+      border-radius:6px; user-select:none;
+      overflow:hidden; white-space:nowrap; text-overflow:ellipsis;
     }
     .calendar-grid .weekday {
       font-weight:600; color:var(--accent);
     }
     .calendar-grid .day {
-      cursor:pointer; background:#f1f4f7;
+      background:#f1f4f7; cursor:pointer;
       transition:background .2s;
-      overflow:hidden; white-space:nowrap; text-overflow:ellipsis;
     }
     .calendar-grid .day:hover { background:rgba(0,122,255,0.1); }
     .calendar-grid .today {
       background:var(--accent); color:#fff; font-weight:600;
     }
     .calendar-grid .has-note::after {
-      content:'●'; position:absolute; bottom:4px; right:4px;
+      content:'●'; position:absolute; right:4px; bottom:4px;
       color:#e74c3c; font-size:0.8rem;
     }
-
     @keyframes fadeIn {
-      from { opacity:0; transform:translateY(10px); }
-      to { opacity:1; transform:translateY(0); }
+      from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}
     }
 
-    /* ===== Notes List ===== */
+    /* ===== Notes ===== */
     .notes-section {
       max-width:400px; margin:1.5rem auto 0;
       background:var(--menu-bg); padding:1rem;
@@ -140,17 +139,17 @@
     .notes-section h3 { margin-bottom:0.5rem; }
     #notes-list { list-style:none; }
     #notes-list li {
-      display:flex; align-items:center; justify-content:space-between;
-      padding:0.5rem; margin-bottom:0.5rem;
-      background:#fff; border-left:4px solid;
-      border-radius:4px; overflow:hidden;
+      display:flex; justify-content:space-between; align-items:center;
+      padding:0.5rem; margin-bottom:0.5rem; background:#fff;
+      border-left:4px solid; border-radius:4px;
+      overflow:hidden; white-space:nowrap; text-overflow:ellipsis;
     }
     #notes-list li[data-priority="low"]    { border-color:#2ecc71; }
-    #notes-list li[data-priority="normal"] { border-color:#007aff; }
+    #notes-list li[data-priority="normal"] { border-color:var(--accent); }
     #notes-list li[data-priority="high"]   { border-color:#ff3b30; }
     .note-info { flex:1; margin-right:0.5rem; }
     .note-date { font-size:.85rem; color:#777; }
-    .note-text { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .note-text {}
     .note-actions button {
       background:none; border:none; font-size:1rem; margin-left:0.3rem;
       cursor:pointer; transition:color .2s;
@@ -170,26 +169,20 @@
       display:flex; flex-direction:column; gap:0.5rem;
     }
     .modal-content label { font-weight:500; }
-    .modal-content textarea, .modal-content select {
-      width:100%; padding:0.5rem; font-size:1rem; border-radius:6px; border:1px solid #ccc;
+    .modal-content textarea,
+    .modal-content select {
+      width:100%; padding:0.5rem; border-radius:6px; border:1px solid #ccc;
     }
     .modal-actions {
       display:flex; justify-content:flex-end; gap:0.5rem;
     }
-    .modal-actions button {
-      padding:0.5rem 1rem; border:none; border-radius:6px; cursor:pointer;
+    #modal-cancel {
+      background:#ccc; color:#333; padding:0.5rem 1rem;
+      border:none; border-radius:6px; cursor:pointer;
     }
-    #modal-cancel { background:#ccc; color:#333; }
     #note-form button[type="submit"] {
-      background:var(--accent); color:#fff;
-    }
-
-    /* Responsive */
-    @media(max-width:600px) {
-      :root { --cell-size:40px; }
-    }
-    @media(max-width:400px) {
-      :root { --cell-size:32px; }
+      background:var(--accent); color:#fff; padding:0.5rem 1rem;
+      border:none; border-radius:6px; cursor:pointer;
     }
   </style>
 </head>
@@ -197,23 +190,22 @@
 
   <header>
     <div class="left">
-      <span class="logo" onclick="toggleMenu()">HedRed</span>
+      <a href="index.html" class="logo">HedRed</a>
     </div>
     <div style="display:flex; align-items:center; gap:1rem;">
       <button class="login-btn">Войти</button>
-      <span class="menu-btn" onclick="toggleMenu()">☰</span>
+      <div class="menu-btn" onclick="toggleMenu()">☰</div>
     </div>
   </header>
 
   <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
   <nav class="side-menu" id="sideMenu">
-    <span class="close-btn" onclick="toggleMenu()">×</span>
-    <a href="../index.html">Главная</a>
-    <a href="index.html">Календарь</a>
-    <a href="../Notif/index.html">Уведомления</a>
-    <a href="../Rem/index.html">Напоминания</a>
-    <a href="../Achiev/index.html">Достижения</a>
-    <a href="../Set/index.html">Настройки</a>
+    <div class="close-btn" onclick="toggleMenu()">×</div>
+    <a href="Calendar/index.html">Календарь</a>
+    <a href="Notif/index.html">Уведомления</a>
+    <a href="Rem/index.html">Напоминания</a>
+    <a href="Achiev/index.html">Достижения</a>
+    <a href="Set/index.html">Настройки</a>
   </nav>
 
   <main>
@@ -236,7 +228,6 @@
     <div class="modal-content">
       <h3 id="modal-title">Добавить заметку</h3>
       <form id="note-form">
-        <input type="hidden" id="note-id" />
         <label>Дата: <span id="note-date"></span></label>
         <textarea id="note-text" placeholder="Текст заметки" required></textarea>
         <label>Важность:</label>
@@ -256,115 +247,118 @@
   <script>
     // ===== Sidebar Toggle =====
     function toggleMenu() {
-      document.getElementById('sideMenu').classList.toggle('open');
+      document.getElementById('sideMenu').classList.toggle('active');
       document.getElementById('overlay').classList.toggle('active');
     }
 
-    // ===== Calendar & Notes Logic =====
+    // ===== Calendar & Notes =====
     document.addEventListener('DOMContentLoaded', () => {
-      const calGrid = document.getElementById('calendar-grid');
+      const grid = document.getElementById('calendar-grid');
       const monthYear = document.getElementById('month-year');
-      const prevBtn = document.getElementById('prev-month');
-      const nextBtn = document.getElementById('next-month');
-      const noteModal = document.getElementById('note-modal');
+      const prev = document.getElementById('prev-month');
+      const next = document.getElementById('next-month');
+      const modal = document.getElementById('note-modal');
       const form = document.getElementById('note-form');
       const noteDateLabel = document.getElementById('note-date');
       const noteText = document.getElementById('note-text');
-      const notePriority = document.getElementById('note-priority');
-      const cancelBtn = document.getElementById('modal-cancel');
-      const notesList = document.getElementById('notes-list');
+      const notePri = document.getElementById('note-priority');
+      const cancel = document.getElementById('modal-cancel');
+      const list = document.getElementById('notes-list');
 
+      let today = new Date();
       let current = new Date();
       let events = JSON.parse(localStorage.getItem('hedredEvents')||'[]');
       let editId = null;
 
-      function saveEv() {
+      function save() {
         localStorage.setItem('hedredEvents', JSON.stringify(events));
       }
 
-      function renderCal(date) {
-        calGrid.innerHTML = '';
-        const m = date.getMonth(), y = date.getFullYear();
-        monthYear.textContent = date.toLocaleString('ru-RU',{ month:'long', year:'numeric'});
-        // weekdays
-        ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].forEach(d=> {
-          const w=document.createElement('div'); w.textContent=d; w.classList.add('weekday');
-          calGrid.appendChild(w);
+      function render() {
+        grid.innerHTML = '';
+        const y = current.getFullYear(), m = current.getMonth();
+        monthYear.textContent = current.toLocaleString('ru-RU',{month:'long', year:'numeric'});
+        ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].forEach(d=>{
+          const w = document.createElement('div'); w.textContent=d; w.className='weekday';
+          grid.appendChild(w);
         });
-        const firstDay=new Date(y,m,1).getDay()||7;
-        for(let i=1;i<firstDay;i++) calGrid.appendChild(document.createElement('div'));
-        const daysInMo=new Date(y,m+1,0).getDate();
-        for(let d=1;d<=daysInMo;d++){
-          const cell=document.createElement('div');
-          cell.textContent=d; cell.classList.add('day');
-          const dt=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-          cell.onclick=()=>openModal(dt);
-          if(events.some(e=>e.date===dt)) cell.classList.add('has-note');
-          const today=new Date(); 
-          if(dt===`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`)
-            cell.classList.add('today');
-          calGrid.appendChild(cell);
+        const first = (new Date(y,m,1).getDay()+6)%7;
+        for(let i=0;i<first;i++) grid.appendChild(document.createElement('div'));
+        const days = new Date(y,m+1,0).getDate();
+        for(let d=1; d<=days; d++){
+          const cell = document.createElement('div');
+          cell.className='day';
+          cell.textContent=d;
+          const date = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+          if(events.some(e=>e.date===date)) cell.classList.add('has-note');
+          const isToday = date===`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+          if(isToday) cell.classList.add('today');
+          cell.onclick = ()=> openModal(date);
+          grid.appendChild(cell);
         }
       }
 
-      function openModal(date, note){
+      function openModal(date) {
         noteDateLabel.textContent=date;
-        noteText.value = note? note.text : '';
-        notePriority.value = note? note.priority : 'normal';
-        editId = note? note.id : null;
-        document.getElementById('modal-title').textContent = note? 'Редактировать заметку':'Добавить заметку';
-        noteModal.classList.add('active');
+        noteText.value='';
+        notePri.value='normal';
+        editId = null;
+        document.getElementById('modal-title').textContent='Добавить заметку';
+        modal.classList.add('active');
       }
-      cancelBtn.onclick = ()=> noteModal.classList.remove('active');
+      cancel.onclick = ()=> modal.classList.remove('active');
 
       form.onsubmit = e=>{
         e.preventDefault();
         const dt = noteDateLabel.textContent;
-        const txt = noteText.value.trim();
+        const txt=noteText.value.trim();
         if(!txt) return;
         if(editId){
           const ev=events.find(x=>x.id===editId);
-          ev.text=txt; ev.priority=notePriority.value;
+          ev.text=txt; ev.priority=notePri.value;
         } else {
-          events.push({ id:Date.now(), date:dt, text:txt, priority:notePriority.value });
+          events.push({id:Date.now(), date:dt, text:txt, priority:notePri.value});
         }
-        saveEv();
-        noteModal.classList.remove('active');
-        renderCal(current);
-        renderList();
+        save(); modal.classList.remove('active');
+        render(); renderList();
       };
 
-      function renderList(){
-        notesList.innerHTML='';
-        events.sort((a,b)=> a.date<b.date?-1:1)
-          .forEach(ev=>{
-            const li=document.createElement('li');
-            li.dataset.priority=ev.priority;
-            li.innerHTML=`
-              <div class="note-info">
-                <div class="note-date">${ev.date}</div>
-                <div class="note-text">${ev.text}</div>
-              </div>
-              <div class="note-actions">
-                <button title="Редактировать">✏️</button>
-                <button title="Удалить">✖</button>
-              </div>`;
-            li.querySelector('button[title="Редактировать"]').onclick=()=>openModal(ev.date, ev);
-            li.querySelector('button[title="Удалить"]').onclick=()=>{
-              if(confirm('Удалить?')) {
-                events=events.filter(x=>x.id!==ev.id);
-                saveEv(); renderCal(current); renderList();
-              }
-            };
-            notesList.appendChild(li);
-          });
+      function renderList() {
+        list.innerHTML='';
+        events.sort((a,b)=>a.date<b.date?-1:1).forEach(ev=>{
+          const li=document.createElement('li');
+          li.dataset.priority=ev.priority;
+          li.innerHTML=`
+            <div class="note-info">
+              <div class="note-date">${ev.date}</div>
+              <div class="note-text">${ev.text}</div>
+            </div>
+            <div class="note-actions">
+              <button title="Редактировать">✏️</button>
+              <button title="Удалить">✖</button>
+            </div>`;
+          li.querySelector('[title="Редактировать"]').onclick=()=>{
+            editId=ev.id;
+            document.getElementById('modal-title').textContent='Редактировать заметку';
+            noteDateLabel.textContent=ev.date;
+            noteText.value=ev.text;
+            notePri.value=ev.priority;
+            modal.classList.add('active');
+          };
+          li.querySelector('[title="Удалить"]').onclick=()=>{
+            if(confirm('Удалить заметку?')){
+              events=events.filter(x=>x.id!==ev.id);
+              save(); render(); renderList();
+            }
+          };
+          list.appendChild(li);
+        });
       }
 
-      prevBtn.onclick = ()=>{ current.setMonth(current.getMonth()-1); renderCal(current); };
-      nextBtn.onclick = ()=>{ current.setMonth(current.getMonth()+1); renderCal(current); };
+      prev.onclick = ()=>{ current.setMonth(current.getMonth()-1); render(); };
+      next.onclick = ()=>{ current.setMonth(current.getMonth()+1); render(); };
 
-      renderCal(current);
-      renderList();
+      render(); renderList();
     });
   </script>
 </body>
