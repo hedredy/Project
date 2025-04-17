@@ -2,12 +2,13 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Календарь — HedRed</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Календарь - HedRed</title>
   <link rel="stylesheet" href="../style.css" />
   <link rel="stylesheet" href="calendar.css" />
 </head>
 <body>
+
   <header>
     <div class="left">
       <a href="../index.html" class="logo">HedRed</a>
@@ -19,6 +20,7 @@
   </header>
 
   <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+
   <nav class="side-menu" id="sideMenu">
     <div class="close-btn" onclick="toggleMenu()">×</div>
     <a href="../Calendar/index.html">Календарь</a>
@@ -29,31 +31,122 @@
   </nav>
 
   <main class="calendar-container">
-    <div class="calendar-header">
-      <button id="prevMonth">‹</button>
-      <div id="monthYear"></div>
-      <button id="nextMonth">›</button>
+    <div class="calendar">
+      <div class="calendar-header">
+        <button id="prevMonth">‹</button>
+        <h2 id="monthYear"></h2>
+        <button id="nextMonth">›</button>
+      </div>
+      <div class="calendar-grid" id="calendarGrid">
+        <!-- Здесь будут дни недели и даты -->
+      </div>
     </div>
-    <div class="calendar-days">
-      <div>Пн</div><div>Вт</div><div>Ср</div><div>Чт</div><div>Пт</div><div>Сб</div><div>Вс</div>
+
+    <div class="tasks-section">
+      <h3>Задачи на выбранную дату</h3>
+      <ul id="taskList"></ul>
     </div>
-    <div class="calendar-grid" id="calendar"></div>
-    <div class="task-list" id="taskList"></div>
   </main>
 
-  <div class="modal-overlay" id="modalOverlay">
-    <div class="modal">
+  <!-- Модальное окно для добавления/редактирования задачи -->
+  <div class="modal" id="taskModal">
+    <div class="modal-content">
+      <span class="close" id="closeModal">&times;</span>
       <h3 id="modalTitle">Добавить задачу</h3>
-      <input type="text" id="taskText" placeholder="Текст задачи" />
-      <select id="taskPriority">
-        <option value="low">Низкий</option>
-        <option value="normal" selected>Обычный</option>
-        <option value="high">Высокий</option>
-      </select>
-      <div class="modal-buttons">
-        <button id="saveTask">Сохранить</button>
-        <button onclick="closeModal()">Отмена</button>
+      <form id="taskForm">
+        <label for="taskText">Текст задачи:</label>
+        <input type="text" id="taskText" required />
+
+        <label for="taskPriority">Приоритет:</label>
+        <select id="taskPriority">
+          <option value="low">Низкий</option>
+          <option value="normal" selected>Обычный</option>
+          <option value="high">Высокий</option>
+        </select>
+
+        <input type="hidden" id="taskDate" />
+        <input type="hidden" id="taskId" />
+
+        <button type="submit">Сохранить</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="../script.js"></script>
+  <script src="calendar.js"></script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Календарь - HedRed</title>
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="calendar.css" />
+</head>
+<body>
+
+  <header>
+    <div class="left">
+      <a href="../index.html" class="logo">HedRed</a>
+    </div>
+    <div style="display: flex; align-items: center; gap: 1rem;">
+      <button class="login-btn">Войти</button>
+      <div class="menu-btn" onclick="toggleMenu()">☰</div>
+    </div>
+  </header>
+
+  <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+
+  <nav class="side-menu" id="sideMenu">
+    <div class="close-btn" onclick="toggleMenu()">×</div>
+    <a href="../Calendar/index.html">Календарь</a>
+    <a href="../Notif/index.html">Уведомления</a>
+    <a href="../Rem/index.html">Напоминания</a>
+    <a href="../Achiev/index.html">Достижения</a>
+    <a href="../Set/index.html">Настройки</a>
+  </nav>
+
+  <main class="calendar-container">
+    <div class="calendar">
+      <div class="calendar-header">
+        <button id="prevMonth">‹</button>
+        <h2 id="monthYear"></h2>
+        <button id="nextMonth">›</button>
       </div>
+      <div class="calendar-grid" id="calendarGrid">
+        <!-- Здесь будут дни недели и даты -->
+      </div>
+    </div>
+
+    <div class="tasks-section">
+      <h3>Задачи на выбранную дату</h3>
+      <ul id="taskList"></ul>
+    </div>
+  </main>
+
+  <!-- Модальное окно для добавления/редактирования задачи -->
+  <div class="modal" id="taskModal">
+    <div class="modal-content">
+      <span class="close" id="closeModal">&times;</span>
+      <h3 id="modalTitle">Добавить задачу</h3>
+      <form id="taskForm">
+        <label for="taskText">Текст задачи:</label>
+        <input type="text" id="taskText" required />
+
+        <label for="taskPriority">Приоритет:</label>
+        <select id="taskPriority">
+          <option value="low">Низкий</option>
+          <option value="normal" selected>Обычный</option>
+          <option value="high">Высокий</option>
+        </select>
+
+        <input type="hidden" id="taskDate" />
+        <input type="hidden" id="taskId" />
+
+        <button type="submit">Сохранить</button>
+      </form>
     </div>
   </div>
 
