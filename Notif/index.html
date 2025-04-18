@@ -1,11 +1,141 @@
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Уведомления | HedRed</title>
   <link rel="stylesheet" href="../style.css" />
+  <style>
+    :root {
+      --main-bg: #f7f9fb;
+      --menu-bg: #ffffff;
+      --text-color: #000000;
+      --accent: #007aff;
+      --shadow: 0 4px 10px rgba(0,0,0,0.1);
+      --border-radius: 16px;
+      --cell-size: 48px;
+      --input-height: 44px;
+    }
+    * {
+      margin:0; padding:0; box-sizing:border-box;
+      font-family:'Segoe UI',sans-serif;
+      -webkit-user-select:none; user-select:none;
+    }
+    body {
+      background:var(--main-bg); color:var(--text-color);
+      overflow-x:hidden;
+    }
+    a { text-decoration:none; color:inherit; cursor:pointer; }
+
+    /* Header & Menu */
+    header {
+      display:flex; justify-content:space-between; align-items:center;
+      padding:1rem; background:var(--menu-bg);
+      box-shadow:var(--shadow); position:sticky; top:0; z-index:1000;
+    }
+    .logo { font-size:1.5rem; font-weight:600; color:var(--accent); }
+    .login-btn {
+      background:var(--accent); color:#fff; border:none;
+      padding:0.5rem 1rem; border-radius:12px; cursor:pointer;
+      transition:background .2s;
+    }
+    .login-btn:hover { background:#005fcc; }
+    .menu-btn { font-size:1.6rem; cursor:pointer; }
+
+    .overlay {
+      position:fixed; top:0; left:0; right:0; bottom:0;
+      background:rgba(0,0,0,0.3);
+      opacity:0; visibility:hidden;
+      transition:opacity .3s, visibility .3s;
+      z-index:900;
+    }
+    .overlay.active { opacity:1; visibility:visible; }
+
+    .side-menu {
+      position:fixed; top:0; right:-100%; width:280px; height:100%;
+      background:var(--menu-bg); box-shadow:-4px 0 12px rgba(0,0,0,0.1);
+      border-top-left-radius:var(--border-radius);
+      border-bottom-left-radius:var(--border-radius);
+      transition:right .3s; z-index:1000; padding-top:60px;
+    }
+    .side-menu.active { right:0; }
+    .side-menu a {
+      display:block; padding:16px 24px; font-size:1.1rem;
+      border-bottom:1px solid #eee;
+    }
+    .side-menu .close-btn {
+      position:absolute; top:14px; right:20px;
+      font-size:1.5rem; cursor:pointer; color:#888;
+    }
+
+    /* Notification Section */
+    .notif-section {
+      max-width: 400px;
+      margin: 1.5rem auto 0;
+      background: var(--menu-bg);
+      padding: 1rem;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+    }
+    .notif-section h3 { margin-bottom: 0.5rem; }
+    .notif-list { list-style: none; padding: 0; }
+    .notif-list li {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0.5rem; margin-bottom: 0.5rem; background: #fff;
+      border-left: 4px solid; border-radius: 6px;
+      overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+    }
+    .notif-list li[data-priority="low"] { border-color: #2ecc71; }
+    .notif-list li[data-priority="normal"] { border-color: var(--accent); }
+    .notif-list li[data-priority="high"] { border-color: #ff3b30; }
+    .notif-actions button {
+      background: none; border: none; font-size: 1rem;
+      cursor: pointer; transition: color .2s;
+    }
+    .notif-actions button:hover { color: var(--accent); }
+    .notif-time {
+      font-size: 0.875rem; color: #888;
+    }
+
+    /* Notification Modal */
+    .modal {
+      position:fixed; top:0; left:0; right:0; bottom:0;
+      background:rgba(0,0,0,0.4); display:none;
+      justify-content:center; align-items:center; z-index:1001;
+    }
+    .modal.active { display:flex; }
+    .modal-content {
+      width:90%; max-width:320px;
+      background:var(--menu-bg); padding:1rem;
+      border-radius:var(--border-radius); box-shadow:var(--shadow);
+      display:flex; flex-direction:column; gap:0.75rem;
+    }
+    .modal-content label {
+      font-size:0.875rem; color:#555;
+    }
+    .modal-content select,
+    .modal-content input[type="time"] {
+      height: var(--input-height);
+      padding:0 0.75rem;
+      border:1px solid #ccc; border-radius:12px;
+      font-size:1rem; outline:none;
+    }
+    .modal-actions {
+      display:flex; justify-content:flex-end; gap:0.5rem;
+    }
+    .modal-actions button {
+      padding:0.5rem 1rem; font-size:1rem;
+      border:none; border-radius:12px; cursor:pointer;
+    }
+    #modal-cancel {
+      background:#eee; color:#333;
+    }
+    #notif-form button[type="submit"] {
+      background:var(--accent); color:#fff;
+    }
+
+  </style>
 </head>
 <body>
 
@@ -13,7 +143,7 @@
     <div class="left">
       <a href="https://hedred.ru" class="logo">HedRed</a>
     </div>
-    <div style="display:flex; align-items:center; gap:1rem;">
+    <div style="display: flex; align-items: center; gap: 1rem;">
       <button class="login-btn">Войти</button>
       <div class="menu-btn" onclick="toggleMenu()">☰</div>
     </div>
@@ -23,66 +153,122 @@
   <nav class="side-menu" id="sideMenu">
     <div class="close-btn" onclick="toggleMenu()">×</div>
     <a href="../index.html">Главная</a>
-    <a href="../Calendar/index.html">Календарь</a>
+    <a href="../Cal/index.html">Календарь</a>
     <a href="index.html">Уведомления</a>
     <a href="../Rem/index.html">Напоминания</a>
     <a href="../Achiev/index.html">Достижения</a>
     <a href="../Set/index.html">Настройки</a>
   </nav>
 
-  <main style="padding: 2rem;">
-    <h2 style="margin-bottom: 1rem;">Настройки уведомлений</h2>
-
-    <label style="display:block; margin-bottom:1rem;">
-      <input type="checkbox" id="notifToggle" /> Получать уведомления
-    </label>
-
-    <button class="login-btn" style="margin-top:1.5rem;" onclick="saveNotifSettings()">Сохранить настройки</button>
+  <main>
+    <div class="notif-section">
+      <h3>Уведомления</h3>
+      <ul id="notif-list">
+        <!-- Notifications will be displayed here -->
+      </ul>
+    </div>
   </main>
 
-  <script src="../script.js"></script>
+  <!-- Notification Modal -->
+  <div class="modal" id="notif-modal">
+    <div class="modal-content">
+      <h3>Добавить уведомление</h3>
+      <form id="notif-form">
+        <label for="notif-event">Событие</label>
+        <select id="notif-event" required>
+          <option value="event1">Событие 1</option>
+          <option value="event2">Событие 2</option>
+          <option value="event3">Событие 3</option>
+        </select>
+
+        <label for="notif-time">Время уведомления</label>
+        <input type="time" id="notif-time" required>
+
+        <label for="notif-priority">Приоритет</label>
+        <select id="notif-priority" required>
+          <option value="low">Низкий</option>
+          <option value="normal">Обычный</option>
+          <option value="high">Высокий</option>
+        </select>
+
+        <div class="modal-actions">
+          <button type="button" id="modal-cancel">Отменить</button>
+          <button type="submit">Сохранить</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <script>
-    // Запрос разрешения
-    if (Notification.permission !== "granted") {
-      Notification.requestPermission();
+    // Display notifications in the list
+    const notifications = [];
+
+    function displayNotifications() {
+      const notifList = document.getElementById('notif-list');
+      notifList.innerHTML = '';
+
+      notifications.forEach((notif, index) => {
+        const notifItem = document.createElement('li');
+        notifItem.dataset.priority = notif.priority;
+        notifItem.innerHTML = `
+          <span>${notif.event} - ${notif.time}</span>
+          <span class="notif-time">${notif.time}</span>
+          <div class="notif-actions">
+            <button onclick="editNotification(${index})">Редактировать</button>
+            <button onclick="deleteNotification(${index})">Удалить</button>
+          </div>
+        `;
+        notifList.appendChild(notifItem);
+      });
     }
 
-    // Загрузка состояния
-    const notifToggle = document.getElementById("notifToggle");
-    const saved = localStorage.getItem("notifications_enabled");
-    notifToggle.checked = saved === "true";
+    // Add a notification
+    document.getElementById('notif-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const event = document.getElementById('notif-event').value;
+      const time = document.getElementById('notif-time').value;
+      const priority = document.getElementById('notif-priority').value;
 
-    function saveNotifSettings() {
-      const enabled = notifToggle.checked;
-      localStorage.setItem("notifications_enabled", enabled);
-      alert("Настройки сохранены");
+      const newNotif = { event, time, priority };
+      notifications.push(newNotif);
+      displayNotifications();
+
+      // Close modal
+      document.getElementById('notif-modal').classList.remove('active');
+    });
+
+    // Edit notification
+    function editNotification(index) {
+      const notif = notifications[index];
+      document.getElementById('notif-event').value = notif.event;
+      document.getElementById('notif-time').value = notif.time;
+      document.getElementById('notif-priority').value = notif.priority;
+
+      // Open modal
+      document.getElementById('notif-modal').classList.add('active');
     }
 
-    // Проверка уведомлений при загрузке
-    function checkUpcomingEvents() {
-      const enabled = localStorage.getItem("notifications_enabled");
-      if (enabled !== "true") return;
-
-      const events = JSON.parse(localStorage.getItem("calendar_events") || "[]");
-
-      const now = new Date();
-      const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000);
-
-      for (const event of events) {
-        const eventDate = new Date(event.date + "T" + (event.time || "00:00"));
-        if (Math.abs(eventDate - oneHourLater) < 60 * 1000) {
-          sendNotification("Скоро событие", `Через час: ${event.title}`);
-        }
-      }
+    // Delete notification
+    function deleteNotification(index) {
+      notifications.splice(index, 1);
+      displayNotifications();
     }
 
-    function sendNotification(title, body) {
-      if (Notification.permission === "granted") {
-        new Notification(title, { body });
-      }
+    // Toggle Modal
+    document.getElementById('modal-cancel').addEventListener('click', function() {
+      document.getElementById('notif-modal').classList.remove('active');
+    });
+
+    // Open modal to add notification
+    function openNotificationModal() {
+      document.getElementById('notif-modal').classList.add('active');
     }
 
-    checkUpcomingEvents(); // запустить проверку
+    // Trigger the modal when the page loads (for testing purposes)
+    window.onload = function() {
+      displayNotifications();
+    }
   </script>
 </body>
 </html>
