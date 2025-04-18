@@ -1,1 +1,88 @@
 
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Уведомления | HedRed</title>
+  <link rel="stylesheet" href="../style.css" />
+</head>
+<body>
+
+  <header>
+    <div class="left">
+      <a href="https://hedred.ru" class="logo">HedRed</a>
+    </div>
+    <div style="display:flex; align-items:center; gap:1rem;">
+      <button class="login-btn">Войти</button>
+      <div class="menu-btn" onclick="toggleMenu()">☰</div>
+    </div>
+  </header>
+
+  <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+  <nav class="side-menu" id="sideMenu">
+    <div class="close-btn" onclick="toggleMenu()">×</div>
+    <a href="../index.html">Главная</a>
+    <a href="../Calendar/index.html">Календарь</a>
+    <a href="index.html">Уведомления</a>
+    <a href="../Rem/index.html">Напоминания</a>
+    <a href="../Achiev/index.html">Достижения</a>
+    <a href="../Set/index.html">Настройки</a>
+  </nav>
+
+  <main style="padding: 2rem;">
+    <h2 style="margin-bottom: 1rem;">Настройки уведомлений</h2>
+
+    <label style="display:block; margin-bottom:1rem;">
+      <input type="checkbox" id="notifToggle" /> Получать уведомления
+    </label>
+
+    <button class="login-btn" style="margin-top:1.5rem;" onclick="saveNotifSettings()">Сохранить настройки</button>
+  </main>
+
+  <script src="../script.js"></script>
+  <script>
+    // Запрос разрешения
+    if (Notification.permission !== "granted") {
+      Notification.requestPermission();
+    }
+
+    // Загрузка состояния
+    const notifToggle = document.getElementById("notifToggle");
+    const saved = localStorage.getItem("notifications_enabled");
+    notifToggle.checked = saved === "true";
+
+    function saveNotifSettings() {
+      const enabled = notifToggle.checked;
+      localStorage.setItem("notifications_enabled", enabled);
+      alert("Настройки сохранены");
+    }
+
+    // Проверка уведомлений при загрузке
+    function checkUpcomingEvents() {
+      const enabled = localStorage.getItem("notifications_enabled");
+      if (enabled !== "true") return;
+
+      const events = JSON.parse(localStorage.getItem("calendar_events") || "[]");
+
+      const now = new Date();
+      const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000);
+
+      for (const event of events) {
+        const eventDate = new Date(event.date + "T" + (event.time || "00:00"));
+        if (Math.abs(eventDate - oneHourLater) < 60 * 1000) {
+          sendNotification("Скоро событие", `Через час: ${event.title}`);
+        }
+      }
+    }
+
+    function sendNotification(title, body) {
+      if (Notification.permission === "granted") {
+        new Notification(title, { body });
+      }
+    }
+
+    checkUpcomingEvents(); // запустить проверку
+  </script>
+</body>
+</html>
