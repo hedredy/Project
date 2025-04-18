@@ -170,31 +170,13 @@
       background:var(--accent); color:#fff;
     }
 
-    /* Notification Section */
-    .notif-section {
-      max-width: 400px;
-      margin: 1.5rem auto 0;
-      background: var(--menu-bg);
-      padding: 1rem;
-      border-radius: var(--border-radius);
-      box-shadow: var(--shadow);
+    /* Photo Modal */
+    .photo-modal .modal-content {
+      padding:0.5rem; text-align:center;
     }
-    .notif-section h3 { margin-bottom: 0.5rem; }
-    .notif-list { list-style: none; }
-    .notif-list li {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 0.5rem; margin-bottom: 0.5rem; background: #fff;
-      border-left: 4px solid; border-radius: 6px;
-      overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+    .photo-modal img {
+      width:100%; border-radius:12px;
     }
-    .notif-list li[data-priority="low"] { border-color: #2ecc71; }
-    .notif-list li[data-priority="normal"] { border-color: var(--accent); }
-    .notif-list li[data-priority="high"] { border-color: #ff3b30; }
-    .notif-actions button {
-      background: none; border: none; font-size: 1rem;
-      cursor: pointer; transition: color .2s;
-    }
-    .notif-actions button:hover { color: var(--accent); }
   </style>
 </head>
 <body>
@@ -203,7 +185,7 @@
     <div class="left">
       <a href="https://hedred.ru" class="logo">HedRed</a>
     </div>
-    <div style="display: flex; align-items: center; gap: 1rem;">
+    <div style="display:flex; align-items:center; gap:1rem;">
       <button class="login-btn">Войти</button>
       <div class="menu-btn" onclick="toggleMenu()">☰</div>
     </div>
@@ -223,66 +205,177 @@
   <main>
     <div class="calendar-container">
       <div class="calendar-header">
-        <button onclick="prevMonth()">◀</button>
-        <span id="month-year"></span>
-        <button onclick="nextMonth()">▶</button>
+        <button id="prev-month">‹</button>
+        <h2 id="month-year"></h2>
+        <button id="next-month">›</button>
       </div>
-      <div class="calendar-grid">
-        <div class="weekday">Пн</div>
-        <div class="weekday">Вт</div>
-        <div class="weekday">Ср</div>
-        <div class="weekday">Чт</div>
-        <div class="weekday">Пт</div>
-        <div class="weekday">Сб</div>
-        <div class="weekday">Вс</div>
-        <div id="calendar-days"></div>
-      </div>
+      <div class="calendar-grid" id="calendar-grid"></div>
     </div>
 
-    <div class="notes-section">
+    <section class="notes-section" id="notes-section">
       <h3>Заметки</h3>
       <ul id="notes-list"></ul>
-    </div>
-
-    <!-- Notification Section -->
-    <div class="notif-section">
-      <h3>Уведомления</h3>
-      <ul id="notif-list"></ul>
-    </div>
+    </section>
   </main>
 
   <!-- Note Modal -->
-  <div class="modal" id="modal">
+  <div class="modal" id="note-modal">
     <div class="modal-content">
-      <h3>Добавить/редактировать заметку</h3>
+      <h3 id="modal-title">Добавить заметку</h3>
       <form id="note-form">
-        <label for="note-text">Текст заметки</label>
-        <textarea id="note-text" rows="4" required></textarea>
-
-        <label for="note-priority">Приоритет</label>
-        <select id="note-priority" required>
-          <option value="low">Низкий</option>
-          <option value="normal">Обычный</option>
-          <option value="high">Высокий</option>
+        <label>Дата: <span id="note-date"></span></label>
+        <textarea id="note-text" placeholder="Введите текст..." required></textarea>
+        <label>Важность:</label>
+        <select id="note-priority">
+          <option value="low">Низкая</option>
+          <option value="normal" selected>Обычная</option>
+          <option value="high">Высокая</option>
         </select>
-
         <div class="modal-actions">
-          <button type="button" id="modal-cancel">Отменить</button>
+          <button type="button" id="modal-cancel">Отмена</button>
           <button type="submit">Сохранить</button>
         </div>
       </form>
     </div>
   </div>
 
-  <script>
-    // Global Variables
-    const today = new Date();
-    let currentMonth = today.getMonth();
-    let currentYear = today.getFullYear();
+  <!-- Photo Modal -->
+  <div class="modal photo-modal" id="photo-modal">
+    <div class="modal-content">
+      <img src="photo_2025-04-17_21-42-30.jpg" alt="Фото" />
+      <div style="margin-top:0.5rem; text-align:right;">
+        <button onclick="closePhoto()">Закрыть</button>
+      </div>
+    </div>
+  </div>
 
-    // Functions for managing Calendar, Notes and Notifications
-    // Your JavaScript functions go here (calendar rendering, note adding, notification management, etc.)
-    
+  <script>
+    function toggleMenu() {
+      document.getElementById('sideMenu').classList.toggle('active');
+      document.getElementById('overlay').classList.toggle('active');
+    }
+    function closePhoto() {
+      document.getElementById('photo-modal').classList.remove('active');
+    }
+
+    document.addEventListener('DOMContentLoaded',() => {
+      const grid = document.getElementById('calendar-grid');
+      const monthYear = document.getElementById('month-year');
+      const prev = document.getElementById('prev-month');
+      const next = document.getElementById('next-month');
+      const noteModal = document.getElementById('note-modal');
+      const photoModal = document.getElementById('photo-modal');
+      const form = document.getElementById('note-form');
+      const noteDateLabel = document.getElementById('note-date');
+      const noteText = document.getElementById('note-text');
+      const notePri = document.getElementById('note-priority');
+      const cancel = document.getElementById('modal-cancel');
+      const notesSection = document.getElementById('notes-section');
+      const list = document.getElementById('notes-list');
+
+      const today = new Date().toISOString().slice(0,10);
+      let current = new Date();
+      let events = JSON.parse(localStorage.getItem('hedredEvents')||'[]');
+      let editId = null;
+
+      function save() {
+        localStorage.setItem('hedredEvents', JSON.stringify(events));
+      }
+
+      function render() {
+        grid.innerHTML = '';
+        const y = current.getFullYear(), m = current.getMonth();
+        monthYear.textContent = current.toLocaleString('ru-RU',{month:'long',year:'numeric'});
+        ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].forEach(d=> {
+          const w=document.createElement('div'); w.className='weekday'; w.textContent=d;
+          grid.appendChild(w);
+        });
+        const offset=(new Date(y,m,1).getDay()+6)%7;
+        for(let i=0;i<offset;i++) grid.appendChild(document.createElement('div'));
+
+        const days = new Date(y,m+1,0).getDate();
+        for(let d=1;d<=days;d++){
+          const cell=document.createElement('div');
+          cell.className='day';
+          cell.textContent=d;
+          const dateStr=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+
+          if(dateStr===today) cell.classList.add('today');
+          if(events.some(e=>e.date===dateStr)) cell.classList.add('has-note');
+
+          if(dateStr<'2009-01-15'){ /* past before 15th */ }
+          else if(dateStr==='2009-01-15'){
+            cell.classList.add('enable');
+            cell.onclick = ()=> photoModal.classList.add('active');
+          } else if(dateStr>=today){
+            cell.classList.add('enable');
+            cell.onclick = ()=> openNote(dateStr);
+          }
+          grid.appendChild(cell);
+        }
+      }
+
+      function openNote(dt){
+        noteDateLabel.textContent=dt;
+        noteText.value=''; notePri.value='normal'; editId=null;
+        document.getElementById('modal-title').textContent='Добавить заметку';
+        noteModal.classList.add('active');
+      }
+      cancel.onclick = ()=> noteModal.classList.remove('active');
+
+      form.onsubmit = e=>{
+        e.preventDefault();
+        const dt=noteDateLabel.textContent, txt=noteText.value.trim();
+        if(!txt) return;
+        if(editId){
+          const ev=events.find(x=>x.id===editId);
+          ev.text=txt; ev.priority=notePri.value;
+        } else {
+          events.push({id:Date.now(),date:dt,text:txt,priority:notePri.value});
+        }
+        save(); noteModal.classList.remove('active');
+        render(); renderList();
+      };
+
+      function renderList(){
+        list.innerHTML='';
+        if(events.length===0) notesSection.style.display='none';
+        else notesSection.style.display='';
+        events.sort((a,b)=>a.date<b.date?-1:1).forEach(ev=>{
+          const li=document.createElement('li');
+          li.dataset.priority=ev.priority;
+          li.innerHTML=`
+            <div class="note-info">
+              <div class="note-date">${ev.date}</div>
+              <div class="note-text">${ev.text}</div>
+            </div>
+            <div class="note-actions">
+              <button title="Редактировать">✏️</button>
+              <button title="Удалить">✖️</button>
+            </div>`;
+          li.querySelector('[title="Редактировать"]').onclick=()=>{
+            editId=ev.id;
+            document.getElementById('modal-title').textContent='Редактировать заметку';
+            noteDateLabel.textContent=ev.date;
+            noteText.value=ev.text;
+            notePri.value=ev.priority;
+            noteModal.classList.add('active');
+          };
+          li.querySelector('[title="Удалить"]').onclick=()=>{
+            if(confirm('Удалить заметку?')){
+              events=events.filter(x=>x.id!==ev.id);
+              save(); render(); renderList();
+            }
+          };
+          list.appendChild(li);
+        });
+      }
+
+      prev.onclick=()=>{ current.setMonth(current.getMonth()-1); render(); };
+      next.onclick=()=>{ current.setMonth(current.getMonth()+1); render(); };
+
+      render(); renderList();
+    });
   </script>
 </body>
 </html>
