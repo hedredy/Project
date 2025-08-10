@@ -1,109 +1,103 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html>
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Secure Access</title>
 <style>
   html, body {
-    margin: 0; padding: 0; height: 100%; overflow: hidden; background: black; color: white;
-    font-family: 'Courier New', monospace; user-select: none;
+    margin: 0; padding: 0; height: 100%; overflow: hidden; background: #000; color: #0f0;
+    font-family: monospace; user-select: none; -webkit-user-select: none; -ms-user-select: none;
   }
   #modal {
-    position: fixed; inset: 0; background: #000; color: #0f0; font-family: monospace;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    user-select: none; -webkit-user-select: none; -ms-user-select: none;
-    overflow: hidden;
-    padding: 1em;
-    box-sizing: border-box;
+    position: fixed; inset: 0; background: #000; color: #0f0;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    user-select: none; padding: 1em; box-sizing: border-box;
   }
   #hackText {
-    background: transparent; border: none; color: #0f0; width: 100%; height: auto;
-    resize: none; font-family: monospace; font-size: 14px; line-height: 1.2;
-    user-select: none; pointer-events: none; overflow: hidden;
+    background: transparent; border: 2px solid #0f0; width: 90vw; max-height: 60vh;
+    color: #0f0; font-family: monospace; font-size: 14px; line-height: 1.1;
     white-space: pre-wrap; word-break: break-word;
+    overflow: auto; user-select: none; pointer-events: none;
   }
   #passInput {
-    margin-top: 1em; width: 200px; padding: 0.5em;
-    font-size: 18px; font-weight: bold;
+    margin-top: 1em; width: 200px; padding: 0.5em; font-size: 18px; font-weight: bold;
     background: black; color: #0f0; border: 2px solid #0f0;
     user-select: text; caret-color: #0f0;
   }
   #root {
-    display: none; /* Скрыто пока пароль не введён */
-    height: 100vh; display: flex; justify-content: center; align-items: center;
-    font-size: 80px; color: white; font-family: Arial, sans-serif;
+    display: none; height: 100vh; color: white;
+    font-family: Arial, sans-serif; font-size: 80px;
+    display: flex; justify-content: center; align-items: center;
   }
 </style>
 </head>
 <body>
 <div id="modal" role="dialog" aria-modal="true" aria-label="Security Warning">
-  <textarea id="hackText" readonly aria-readonly="true" tabindex="-1" aria-label="Security hash"></textarea>
+  <pre id="hackText" aria-readonly="true" tabindex="-1"></pre>
   <input type="password" id="passInput" autocomplete="off" placeholder="Enter password" aria-label="Password input" />
 </div>
-
 <div id="root">ACCESS GRANTED</div>
 
 <script>
 (() => {
   'use strict';
 
-  const modal = document.getElementById('modal');
-  const passInput = document.getElementById('passInput');
-  const hackText = document.getElementById('hackText');
-  const root = document.getElementById('root');
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:',.<>/?";
+  const targetLength = 200000;
+  let buffer = "";
+  const hackText = document.getElementById("hackText");
+  const passInput = document.getElementById("passInput");
+  const modal = document.getElementById("modal");
+  const root = document.getElementById("root");
 
-  const chars = "~!@#$%^&*()_+{}|:\"<>?-=[];',./\\abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  function randomChar() {
+    return chars.charAt(Math.floor(Math.random() * chars.length));
+  }
 
-  function generateRandomText(len) {
-    let result = '';
-    while(result.length < len) {
-      result += chars.charAt(Math.floor(Math.random() * chars.length));
+  function chunk() {
+    for (let i = 0; i < 2000; i++) {
+      buffer += randomChar();
     }
-    return result;
+    hackText.textContent = buffer;
+    if (buffer.length < targetLength) {
+      requestAnimationFrame(chunk);
+    }
   }
 
-  function fillHackText() {
-    let text = generateRandomText(20000);
-    hackText.value = text;
-    adjustHeight();
-  }
-
-  function adjustHeight() {
-    hackText.style.height = 'auto';
-    hackText.style.height = hackText.scrollHeight + 'px';
-  }
-
-  fillHackText();
+  chunk();
 
   passInput.focus();
 
-  passInput.addEventListener('input', () => {
-    adjustHeight();
-  });
-
-  passInput.addEventListener('keydown', e => {
-    if (e.key === 'Enter') {
-      if (passInput.value === '1') {
-        modal.style.display = 'none';
-        root.style.display = 'flex';
-        document.body.style.overflow = 'hidden';
+  passInput.addEventListener("keydown", e => {
+    if (e.key === "Enter") {
+      if (passInput.value === "1") {
+        modal.style.display = "none";
+        root.style.display = "flex";
+        document.body.style.overflow = "hidden";
       } else {
-        passInput.value = '';
-        passInput.placeholder = 'Wrong password!';
+        passInput.value = "";
+        passInput.placeholder = "Wrong password!";
       }
     }
   });
 
-  window.addEventListener('scroll', e => {
+  // Запрет скролла страницы
+  window.addEventListener("scroll", e => {
     e.preventDefault();
     window.scrollTo(0, 0);
   }, { passive: false });
-
-  window.addEventListener('touchmove', e => {
+  window.addEventListener("touchmove", e => {
     e.preventDefault();
   }, { passive: false });
 
+  // Блокировка контекстного меню и некоторых клавиш
+  document.addEventListener("contextmenu", e => e.preventDefault());
+  document.addEventListener("keydown", e => {
+    if (["F12", "F11", "F10"].includes(e.key) || e.ctrlKey || e.altKey || e.metaKey) {
+      e.preventDefault();
+    }
+  });
 })();
 </script>
 </body>
