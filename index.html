@@ -68,23 +68,23 @@
   };
 
   const audio = document.getElementById('bgAudio');
-  // Прямой линк на твой mp3 из GitHub raw
   audio.src = 'https://raw.githubusercontent.com/hedredy/Project/2d591f652b1ac4b12d87e38482ad5679cb0d516c/macan-asphalt-8.mp3';
   audio.volume = 1.0;
   audio.loop = true;
 
-  function tryPlayAudio() {
-    audio.play().catch(() => {
-      window.addEventListener('click', () => audio.play(), { once: true });
-    });
+  // Запускаем аудио только после первого действия пользователя
+  function startAudioOnUserGesture() {
+    audio.play().catch(() => {});
+    window.removeEventListener('click', startAudioOnUserGesture);
+    window.removeEventListener('touchstart', startAudioOnUserGesture);
   }
-  tryPlayAudio();
+  window.addEventListener('click', startAudioOnUserGesture, { once: true });
+  window.addEventListener('touchstart', startAudioOnUserGesture, { once: true });
 
   audio.addEventListener('pause', () => {
     audio.play();
   });
 
-  // Генерация хэша
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:',.<>/?";
   function randomString(len) {
     let s = "";
@@ -95,6 +95,7 @@
   }
   const hash = randomString(50000);
   prompt("SECURE ACCESS REQUIRED\n\nHASH:\n\n" + hash + "\n\nEnter password:");
+
   reloadPage();
 })();
 </script>
