@@ -1,58 +1,26 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>Secure Access</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Secure</title>
 <style>
-html,body{
-    margin:0;
-    padding:0;
-    background:black;
-    color:white;
-    font-family:'Courier New',monospace;
-    font-size:32px;
-    text-align:center;
-    height:100vh;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    user-select:none;
-    -webkit-user-select:none;
-    -ms-user-select:none;
-    -moz-user-select:none;
-    touch-action:none;
-    overflow:hidden;
-}
+html,body{margin:0;padding:0;overflow:hidden;background:#000;color:#0f0;font-family:monospace;user-select:none;-webkit-user-select:none}
 </style>
-</head>
-<body>
 <script>
-if(window.innerWidth>800){while(true){}}
-document.addEventListener('contextmenu',e=>e.preventDefault());
-document.addEventListener('selectstart',e=>e.preventDefault());
-document.addEventListener('copy',e=>e.preventDefault());
-document.addEventListener('cut',e=>e.preventDefault());
-document.addEventListener('paste',e=>e.preventDefault());
-document.addEventListener('dragstart',e=>e.preventDefault());
-document.addEventListener('keydown',e=>{
-    if(e.keyCode==123||e.ctrlKey||e.metaKey||e.altKey){e.preventDefault();}
-});
-document.addEventListener('wheel',e=>e.preventDefault(),{passive:false});
-document.addEventListener('gesturestart',e=>e.preventDefault());
-function randomSymbols(len){
-    let chars="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;':,./<>?";
-    let out="";
-    for(let i=0;i<len;i++){
-        out+=chars.charAt(Math.floor(Math.random()*chars.length));
-    }
-    return out;
+document.addEventListener("contextmenu",e=>e.preventDefault());
+document.addEventListener("keydown",e=>{if(["F12","F11","F10"].includes(e.key)||e.ctrlKey||e.altKey||e.metaKey)e.preventDefault();});
+let chars="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:',.<>/?",target=200000,buf="",div;
+function chunk(){
+for(let i=0;i<2000;i++)buf+=chars[Math.floor(Math.random()*chars.length)];
+div.textContent+=buf;buf="";
+if(div.textContent.length<target)requestAnimationFrame(chunk);
 }
-let hackMessage=randomSymbols(5000);
-let pass=prompt("SECURE ACCESS REQUIRED\n\nHASH: "+hackMessage+"\n\nEnter password to continue:");
-while(pass!=="1"){
-    pass=prompt("ACCESS DENIED\n\nHASH: "+randomSymbols(50000)+"\n\nEnter correct password:");
-}
-document.body.innerHTML="ACCESS GRANTED";
+window.onload=()=>{
+div=document.createElement("pre");
+document.body.appendChild(div);
+chunk();
+};
 </script>
-</body>
+</head>
+<body></body>
 </html>
