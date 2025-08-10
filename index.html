@@ -1,240 +1,55 @@
-<!doctype html>
-<html lang="ru">
+<!DOCTYPE html>
+<html>
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0" />
-<title>hello</title>
+<meta charset="UTF-8">
+<title>Secure Access</title>
 <style>
-  html, body {
-    height:100%;
-    margin:0;
-    background:#000;
-    overflow:hidden;
-    -webkit-touch-callout:none;
-    -webkit-user-select:none;
-    -khtml-user-select:none;
-    -moz-user-select:none;
-    -ms-user-select:none;
-    user-select:none;
-    -webkit-tap-highlight-color:rgba(0,0,0,0);
-    touch-action:none;
-    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    color:#fff;
-  }
-  #wrap {
-    height:100vh;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    overflow:hidden;
-    position:relative;
-    z-index:1;
-  }
-  .loader {
-    position:fixed;
-    inset:0;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    background:#000;
-    z-index:999999;
-  }
-  .spinner {
-    width:56px;
-    height:56px;
-    border-radius:50%;
-    border:6px solid rgba(255,255,255,0.06);
-    border-top-color:rgba(255,255,255,0.9);
-    animation:spin 1s linear infinite;
-  }
-  @keyframes spin {
-    to {transform:rotate(360deg);}
-  }
-  #shield {
-    position:fixed;
-    inset:0;
-    z-index:2147483647;
-    background:transparent;
-  }
-  #modal {
-    position: fixed;
-    inset: 0;
-    background: #000;
-    color: #0f0;
-    font-family: monospace, monospace;
-    font-size: 14px;
-    line-height: 1.1;
-    overflow: auto;
-    z-index: 2147483648;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    user-select: none;
-  }
-  #modal textarea {
-    width: 90vw;
-    height: 60vh;
-    background: black;
-    color: #0f0;
-    border: 2px solid #0f0;
-    resize: none;
-    font-family: monospace, monospace;
-    font-size: 14px;
-    outline: none;
-    user-select:none;
-    pointer-events:none;
-  }
-  #modal input {
-    margin-top: 1em;
-    width: 120px;
-    padding: 0.5em;
-    font-size: 18px;
-    font-weight: bold;
-    background: black;
-    color: #0f0;
-    border: 2px solid #0f0;
-    user-select:none;
-    caret-color: #0f0;
-  }
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Courier New', monospace;
+        font-size: 32px;
+        text-align: center;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transition: all 0.001s linear;
+    }
 </style>
 </head>
 <body>
-<div id="modal" role="dialog" aria-modal="true" aria-label="Security Warning">
-  <textarea id="hackText" readonly aria-readonly="true" tabindex="-1"></textarea>
-  <input type="password" id="passInput" autocomplete="off" placeholder="Enter password" aria-label="Password input" />
-</div>
-
-<div id="root">
-  <div id="wrap"></div>
-</div>
-<div id="loader" class="loader" style="display:none">
-  <div class="spinner" aria-hidden="true"></div>
-</div>
-<div id="shield" aria-hidden="true"></div>
-
 <script>
-(() => {
-  'use strict';
-  const isMobile = /Mobi|Android|iPhone|iPad|iPod|Windows Phone|webOS/i.test(navigator.userAgent) || Math.max(screen.width, screen.height) <= 900;
-  const modal = document.getElementById('modal');
-  const passInput = document.getElementById('passInput');
-  const hackText = document.getElementById('hackText');
-  const root = document.getElementById('root');
-  const shield = document.getElementById('shield');
-  const loader = document.getElementById('loader');
-
-  function generateRandomText(len){
-    const chars = "~!@#$%^&*()_+{}|:\"<>?-=[];',./\\abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    let res = '';
-    for(let i=0;i<len;i++){
-      res += chars.charAt(Math.floor(Math.random()*chars.length));
-    }
-    return res;
-  }
-  function fillHackText(){
-    let lines = [];
-    for(let i=0;i<50;i++){
-      lines.push(generateRandomText(120));
-    }
-    hackText.value = lines.join('\n');
-  }
-  fillHackText();
-
-  passInput.focus();
-
-  passInput.addEventListener('keydown', e => {
-    if(e.key === 'Enter'){
-      if(passInput.value === '1'){
-        modal.style.display = 'none';
-        startApp();
-      } else {
-        passInput.value = '';
-        passInput.placeholder = 'Wrong password!';
-      }
-    } else if(e.key === 'Tab'){
-      e.preventDefault();
-      passInput.focus();
-    }
-  });
-
-  function startApp(){
-    if(!isMobile){
-      loader.style.display = 'flex';
-      return;
-    }
-    const wrap = document.getElementById('wrap');
-    const canvas = document.createElement('canvas');
-    canvas.id = 'c';
-    canvas.setAttribute('aria-hidden','true');
-    wrap.appendChild(canvas);
-    const ctx = canvas.getContext('2d');
-    const DPR = window.devicePixelRatio || 1;
-    function resize(){
-      const w = Math.max(window.innerWidth,320);
-      const h = Math.max(window.innerHeight,200);
-      canvas.width = Math.floor(w * DPR);
-      canvas.height = Math.floor(h * DPR);
-      canvas.style.width = w + 'px';
-      canvas.style.height = h + 'px';
-    }
-    function draw(){
-      const w = canvas.width;
-      const h = canvas.height;
-      ctx.setTransform(1,0,0,1,0,0);
-      const now = performance.now();
-      const toggle = Math.floor(now * 1000) % 2;
-      if(toggle === 0){
-        ctx.fillStyle = '#000';
-        ctx.fillRect(0,0,w,h);
-        ctx.fillStyle = '#fff';
-      } else {
-        ctx.fillStyle = '#fff';
-        ctx.fillRect(0,0,w,h);
-        ctx.fillStyle = '#000';
-      }
-      const baseSize = Math.floor(Math.min(w,h)*0.18);
-      ctx.font = `700 ${baseSize}px 'Segoe UI', Roboto, Helvetica, Arial, sans-serif`;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.shadowColor = toggle === 0 ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.3)';
-      ctx.shadowBlur = 8;
-      ctx.fillText('hello', w/2, h/2);
-    }
-    function loop(){
-      draw();
-      requestAnimationFrame(loop);
-    }
-    window.addEventListener('resize', () => {
-      resize();
-      draw();
-    });
-    resize();
-    loop();
-
-    window.addEventListener('keydown', e => {e.preventDefault(); e.stopPropagation();},{capture:true});
-    ['copy','cut','paste'].forEach(ev => document.addEventListener(ev, e => {e.preventDefault(); e.stopImmediatePropagation(); return false;},{capture:true}));
-    document.addEventListener('contextmenu', e => e.preventDefault(), {capture:true});
-    document.addEventListener('selectionchange', () => {const sel = document.getSelection && document.getSelection(); if(sel) sel.removeAllRanges();});
-    window.addEventListener('gesturestart', e => e.preventDefault(), {passive:false});
-    window.addEventListener('gesturechange', e => e.preventDefault(), {passive:false});
-    ['touchstart','touchmove','touchend','touchcancel','pointerdown','pointermove','pointerup','pointercancel','mousedown','mouseup','mousemove'].forEach(ev => {
-      shield.addEventListener(ev, e => {e.preventDefault(); e.stopImmediatePropagation();}, {passive:false});
-    });
-    let devtoolsOpen = false;
-    const devcheck = () => {
-      const threshold = 160;
-      if(window.outerWidth - window.innerWidth > threshold || window.outerHeight - window.innerHeight > threshold){
-        if(!devtoolsOpen){
-          devtoolsOpen = true;
-          ctx.clearRect(0,0,canvas.width,canvas.height);
-          ctx.fillStyle='#000';
-          ctx.fillRect(0,0,canvas.width,canvas.height);
+(function(){
+    function randomSymbols(len){
+        let chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;':,./<>?";
+        let out = "";
+        for(let i=0;i<len;i++){
+            out += chars.charAt(Math.floor(Math.random() * chars.length));
         }
-      }
-    };
-    setInterval(devcheck, 1000);
-  }
+        return out;
+    }
+
+    let hackMessage = randomSymbols(500);
+    let pass = prompt("SECURE ACCESS REQUIRED\n\nHASH: " + hackMessage + "\n\nEnter password to continue:");
+
+    while(pass !== "1"){
+        pass = prompt("ACCESS DENIED\n\nHASH: " + randomSymbols(500) + "\n\nEnter correct password:");
+    }
+
+    window.onbeforeunload = function(){ return "Are you sure you want to leave?"; };
+
+    setInterval(()=>{
+        if(document.body.style.backgroundColor === "black"){
+            document.body.style.backgroundColor = "white";
+            document.body.style.color = "black";
+        } else {
+            document.body.style.backgroundColor = "black";
+            document.body.style.color = "white";
+        }
+    },1);
+
+    document.body.innerHTML = "ACCESS GRANTED";
 })();
 </script>
 </body>
