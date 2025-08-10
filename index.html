@@ -1,105 +1,42 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Secure Modal</title>
+<title>Secure</title>
 <style>
   html, body {
-    margin: 0; padding: 0; height: 100%; overflow: hidden;
-    background: #000;
-    color: #0f0;
-    font-family: monospace;
-    user-select: none;
-  }
-  #modal {
-    position: fixed;
-    inset: 0;
-    background: #000;
-    color: #0f0;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 1rem;
-    box-sizing: border-box;
-    user-select: none;
-  }
-  #modalText {
-    font-size: 14px;
-    line-height: 1.1;
-    white-space: pre-wrap;
-    word-break: break-word;
-    max-width: 90vw;
-    max-height: 90vh;
-    overflow: hidden; /* запрет скроллинга */
-  }
-  #passwordInput {
-    margin-top: 1rem;
-    width: 220px;
-    padding: 0.5rem;
-    font-size: 18px;
-    font-weight: bold;
-    background: black;
-    color: #0f0;
-    border: 2px solid #0f0;
-    caret-color: #0f0;
-    user-select: text;
+    margin: 0; padding: 0; height: 100%; background: black; overflow: hidden;
+    color: black; /* текст не виден */
+    user-select: none; -webkit-user-select: none; -moz-user-select: none;
   }
 </style>
 </head>
 <body>
-<div id="modal" role="dialog" aria-modal="true" aria-label="Security Warning">
-  <div id="modalText" tabindex="-1" aria-readonly="true"></div>
-  <input type="password" id="passwordInput" placeholder="Enter password" aria-label="Password input" autocomplete="off" />
-</div>
-
 <script>
 (() => {
-  const modalText = document.getElementById('modalText');
-  const passwordInput = document.getElementById('passwordInput');
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:',.<>/?";
-  let text = "";
-
-  function generateText(len) {
-    let out = "";
-    for(let i=0; i<len; i++) {
-      out += chars.charAt(Math.floor(Math.random()*chars.length));
-    }
-    return out;
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  if (!isMobile) {
+    while(true){} // вечная загрузка на ПК
   }
 
-  // Генерируем большой текст и вставляем
-  text = generateText(5000);
-  modalText.textContent = text;
-
-  passwordInput.focus();
-
-  passwordInput.addEventListener('keydown', e => {
-    if(e.key === 'Enter') {
-      if(passwordInput.value === "1") {
-        document.body.innerHTML = '<div style="display:flex; justify-content:center; align-items:center; height:100vh; color:#0f0; font-family: monospace; font-size: 48px;">ACCESS GRANTED</div>';
-      } else {
-        passwordInput.value = "";
-        passwordInput.placeholder = "Wrong password!";
-      }
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:',.<>/?";
+  function randomHash(len) {
+    let res = "";
+    for(let i=0; i<len; i++) {
+      res += chars.charAt(Math.floor(Math.random()*chars.length));
     }
-  });
+    return res;
+  }
 
-  // Запрет выделения и скролла страницы
-  window.addEventListener('scroll', e => {
-    e.preventDefault();
-    window.scrollTo(0, 0);
-  }, { passive: false });
-  window.addEventListener('touchmove', e => {
-    e.preventDefault();
-  }, { passive: false });
+  let hash = randomHash(50000);
 
-  // Блокировка контекстного меню и сочетаний клавиш
-  document.addEventListener('contextmenu', e => e.preventDefault());
-  document.addEventListener('keydown', e => {
-    if(["F12","F11","F10"].includes(e.key) || e.ctrlKey || e.altKey || e.metaKey) e.preventDefault();
-  });
+  let input;
+  do {
+    input = prompt("SECURE ACCESS REQUIRED\n\nHASH:\n\n" + hash + "\n\nEnter password:");
+    hash = randomHash(50000); // обновляем хэш при каждом повторе
+  } while(input !== ""); // условие всегда false — пароль не принимается, prompt вызывается снова
+
 })();
 </script>
 </body>
