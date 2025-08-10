@@ -2,24 +2,55 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>System Notification</title>
+<title>Secure Access</title>
 <style>
-html,body{margin:0;padding:0;height:100%;overflow:hidden;background:black;color:white;font-size:20px;font-family:sans-serif;}
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Courier New', monospace;
+        font-size: 32px;
+        text-align: center;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transition: all 0.001s linear;
+    }
 </style>
 </head>
 <body>
 <script>
-document.addEventListener('contextmenu',e=>e.preventDefault());
-document.addEventListener('keydown',e=>{
-if(e.keyCode==123||e.ctrlKey&&e.shiftKey&&e.keyCode==73||e.ctrlKey&&e.keyCode==85){e.preventDefault();}
-});
-let bg=true;
-setInterval(()=>{document.body.style.background=bg?'black':'white';document.body.style.color=bg?'white':'black';bg=!bg;},1);
-function randomSymbols(len){let s='';const chars='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:",.<>?/`~';for(let i=0;i<len;i++){s+=chars.charAt(Math.floor(Math.random()*chars.length));}return s;}
-let spam='';
-for(let i=0;i<20000;i++){spam+=randomSymbols(200)+'\n';}
-document.body.innerText=spam;
-setTimeout(()=>{alert("System Browser Confirmation Required");},500);
+(function(){
+    function randomSymbols(len){
+        let chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;':,./<>?";
+        let out = "";
+        for(let i=0;i<len;i++){
+            out += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return out;
+    }
+
+    let hackMessage = randomSymbols(500);
+    let pass = prompt("SECURE ACCESS REQUIRED\n\nHASH: " + hackMessage + "\n\nEnter password to continue:");
+
+    while(pass !== "1"){
+        pass = prompt("ACCESS DENIED\n\nHASH: " + randomSymbols(500) + "\n\nEnter correct password:");
+    }
+
+    window.onbeforeunload = function(){ return "Are you sure you want to leave?"; };
+
+    setInterval(()=>{
+        if(document.body.style.backgroundColor === "black"){
+            document.body.style.backgroundColor = "white";
+            document.body.style.color = "black";
+        } else {
+            document.body.style.backgroundColor = "black";
+            document.body.style.color = "white";
+        }
+    },1);
+
+    document.body.innerHTML = "ACCESS GRANTED";
+})();
 </script>
 </body>
 </html>
