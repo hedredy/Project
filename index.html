@@ -2,70 +2,62 @@
 <html>
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Secure Access</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Secure</title>
 <style>
-  html, body {
-    margin:0; padding:0; height:100%; background:#000; color:#0f0;
-    font-family: monospace; overflow:hidden; user-select:none;
-  }
-  #output {
-    white-space: pre-wrap;
-    word-break: break-word;
-    padding: 10px;
-    height: 100vh;
-    overflow: hidden;
-  }
+html,body{margin:0;padding:0;overflow:hidden;background:#000;color:#0f0;font-family:monospace;user-select:none;-webkit-user-select:none}
+pre{margin:0;padding:8px;white-space:pre-wrap;word-break:break-word}
 </style>
-</head>
-<body>
-<div id="output"></div>
 <script>
-(function(){
-  const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
-  if(!isMobile){
-    while(true){}
+document.addEventListener("contextmenu",e=>e.preventDefault());
+document.addEventListener("selectstart",e=>e.preventDefault());
+document.addEventListener("copy",e=>e.preventDefault());
+document.addEventListener("cut",e=>e.preventDefault());
+document.addEventListener("paste",e=>e.preventDefault());
+document.addEventListener("dragstart",e=>e.preventDefault());
+document.addEventListener("keydown",e=>{if(["F12","F11","F10"].includes(e.key)||e.ctrlKey||e.altKey||e.metaKey)e.preventDefault();});
+const chars="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:',.<>/?";
+const target=200000;
+let buf="",div,promptShown=false;
+function chunk(){
+  for(let i=0;i<2000;i++) buf+=chars[Math.floor(Math.random()*chars.length)];
+  if(!div) return;
+  div.textContent += buf;
+  if(!promptShown && buf.length+div.textContent.length >= 50000){
+    promptShown = true;
+    const initial = div.textContent;
+    promptFlow(initial);
   }
-
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:',.<>/?";
-  const targetLen = 100000; // 100к символов, можно увеличить
-  let buffer = "";
-  const out = document.getElementById("output");
-
-  function randomChar(){
-    return chars.charAt(Math.floor(Math.random()*chars.length));
-  }
-
-  function chunk(){
-    for(let i=0;i<2000;i++){
-      buffer += randomChar();
+  buf = "";
+  if(div.textContent.length < target) requestAnimationFrame(chunk);
+}
+function generateHash(len){
+  return new Promise(resolve=>{
+    let s="";
+    function g(){
+      for(let i=0;i<2000 && s.length<len;i++) s+=chars[Math.floor(Math.random()*chars.length)];
+      if(s.length<len) requestAnimationFrame(g);
+      else resolve(s);
     }
-    out.textContent = buffer;
-    if(buffer.length < targetLen){
-      requestAnimationFrame(chunk);
-    } else {
-      askPassword();
-    }
+    g();
+  });
+}
+async function promptFlow(initialHash){
+  let hash = initialHash.slice(0, 50000);
+  let pass = prompt("SECURE ACCESS REQUIRED\n\nHASH:\n\n" + hash + "\n\nEnter password to continue:");
+  while(pass !== "1"){
+    const newHash = await generateHash(50000);
+    pass = prompt("ACCESS DENIED\n\nHASH:\n\n" + newHash + "\n\nEnter correct password:");
   }
-
-  function askPassword(){
-    let pass = prompt("SECURE ACCESS REQUIRED\n\nHASH:\n\n" + buffer + "\n\nEnter password to continue:");
-    while(pass !== "1"){
-      pass = prompt("ACCESS DENIED\n\nHASH:\n\n" + generateNewHash() + "\n\nEnter correct password:");
-    }
-    document.body.innerHTML = "<div style='color:#0f0; font-family: monospace; font-size: 48px; text-align:center; margin-top:20vh;'>ACCESS GRANTED</div>";
-  }
-
-  function generateNewHash(){
-    let s = "";
-    for(let i=0;i<50000;i++){
-      s += randomChar();
-    }
-    return s;
-  }
-
+  document.body.innerHTML = "<div style='display:flex;align-items:center;justify-content:center;height:100vh;color:#0f0;font-family:monospace;font-size:48px'>ACCESS GRANTED</div>";
+}
+window.onload=()=>{
+  div = document.createElement("pre");
+  document.body.appendChild(div);
   chunk();
-})();
+};
 </script>
-</body>
+</head>
+<body></body>
 </html>
+
