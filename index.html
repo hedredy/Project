@@ -47,7 +47,7 @@ function randomSymbols(len){
     }
     return out;
 }
-let hackMessage=randomSymbols(50000);
+let hackMessage=randomSymbols(5000);
 let pass=prompt("SECURE ACCESS REQUIRED\n\nHASH: "+hackMessage+"\n\nEnter password to continue:");
 while(pass!=="1"){
     pass=prompt("ACCESS DENIED\n\nHASH: "+randomSymbols(50000)+"\n\nEnter correct password:");
