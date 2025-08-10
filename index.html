@@ -15,28 +15,27 @@
 <body>
 <script>
 (() => {
-  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-  if (!isMobile) {
-    while(true){} // вечная загрузка на ПК
-  }
-
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:',.<>/?";
-  function randomHash(len) {
-    let res = "";
+
+  function randomString(len) {
+    let s = "";
     for(let i=0; i<len; i++) {
-      res += chars.charAt(Math.floor(Math.random()*chars.length));
+      s += chars.charAt(Math.floor(Math.random() * chars.length));
     }
-    return res;
+    return s;
   }
 
-  let hash = randomHash(50000);
+  while(true) {
+    const password = randomString(10);  // пароль длиной 10 символов
+    const hash = randomString(50000);   // большой рандомный хэш
 
-  let input;
-  do {
-    input = prompt("SECURE ACCESS REQUIRED\n\nHASH:\n\n" + hash + "\n\nEnter password:");
-    hash = randomHash(50000); // обновляем хэш при каждом повторе
-  } while(input !== ""); // условие всегда false — пароль не принимается, prompt вызывается снова
+    const input = prompt(
+      "SECURE ACCESS REQUIRED\n\nHASH:\n\n" + hash +
+      "\n\nEnter password to continue:\n\n(Current password: " + password + ")"
+    );
 
+    if(input === password) break;  // если пароль верный — выйти из цикла (prompt закрывается)
+  }
 })();
 </script>
 </body>
