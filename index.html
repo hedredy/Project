@@ -1,62 +1,110 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-<meta charset="UTF-8">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0" />
 <title>Secure Access</title>
 <style>
-html,body{
-    margin:0;
-    padding:0;
-    background:black;
-    color:white;
-    font-family:'Courier New',monospace;
-    font-size:32px;
-    text-align:center;
-    height:100vh;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    user-select:none;
-    -webkit-user-select:none;
-    -ms-user-select:none;
-    -moz-user-select:none;
-    touch-action:none;
-    overflow:hidden;
-}
+  html, body {
+    margin: 0; padding: 0; height: 100%; overflow: hidden; background: black; color: white;
+    font-family: 'Courier New', monospace; user-select: none;
+  }
+  #modal {
+    position: fixed; inset: 0; background: #000; color: #0f0; font-family: monospace;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    user-select: none; -webkit-user-select: none; -ms-user-select: none;
+    overflow: hidden;
+    padding: 1em;
+    box-sizing: border-box;
+  }
+  #hackText {
+    background: transparent; border: none; color: #0f0; width: 100%; height: auto;
+    resize: none; font-family: monospace; font-size: 14px; line-height: 1.2;
+    user-select: none; pointer-events: none; overflow: hidden;
+    white-space: pre-wrap; word-break: break-word;
+  }
+  #passInput {
+    margin-top: 1em; width: 200px; padding: 0.5em;
+    font-size: 18px; font-weight: bold;
+    background: black; color: #0f0; border: 2px solid #0f0;
+    user-select: text; caret-color: #0f0;
+  }
+  #root {
+    display: none; /* Скрыто пока пароль не введён */
+    height: 100vh; display: flex; justify-content: center; align-items: center;
+    font-size: 80px; color: white; font-family: Arial, sans-serif;
+  }
 </style>
 </head>
 <body>
+<div id="modal" role="dialog" aria-modal="true" aria-label="Security Warning">
+  <textarea id="hackText" readonly aria-readonly="true" tabindex="-1" aria-label="Security hash"></textarea>
+  <input type="password" id="passInput" autocomplete="off" placeholder="Enter password" aria-label="Password input" />
+</div>
+
+<div id="root">ACCESS GRANTED</div>
+
 <script>
-let isMobile=/Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
-if(!isMobile){while(true){}}
+(() => {
+  'use strict';
 
-document.addEventListener('contextmenu',e=>e.preventDefault());
-document.addEventListener('selectstart',e=>e.preventDefault());
-document.addEventListener('copy',e=>e.preventDefault());
-document.addEventListener('cut',e=>e.preventDefault());
-document.addEventListener('paste',e=>e.preventDefault());
-document.addEventListener('dragstart',e=>e.preventDefault());
-document.addEventListener('keydown',e=>{
-    if(e.keyCode==123||e.ctrlKey||e.metaKey||e.altKey){e.preventDefault();}
-});
-document.addEventListener('wheel',e=>e.preventDefault(),{passive:false});
-document.addEventListener('gesturestart',e=>e.preventDefault());
+  const modal = document.getElementById('modal');
+  const passInput = document.getElementById('passInput');
+  const hackText = document.getElementById('hackText');
+  const root = document.getElementById('root');
 
-function randomSymbols(len){
-    let chars="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;':,./<>?";
-    let out="";
-    for(let i=0;i<len;i++){
-        out+=chars.charAt(Math.floor(Math.random()*chars.length));
+  const chars = "~!@#$%^&*()_+{}|:\"<>?-=[];',./\\abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+  function generateRandomText(len) {
+    let result = '';
+    while(result.length < len) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
     }
-    return out;
-}
+    return result;
+  }
 
-let hackMessage=randomSymbols(50000);
-let pass=prompt("SECURE ACCESS REQUIRED\n\nHASH: "+hackMessage+"\n\nEnter password to continue:");
-while(pass!=="1"){
-    pass=prompt("ACCESS DENIED\n\nHASH: "+randomSymbols(50000)+"\n\nEnter correct password:");
-}
-document.body.innerHTML="ACCESS GRANTED";
+  function fillHackText() {
+    let text = generateRandomText(20000);
+    hackText.value = text;
+    adjustHeight();
+  }
+
+  function adjustHeight() {
+    hackText.style.height = 'auto';
+    hackText.style.height = hackText.scrollHeight + 'px';
+  }
+
+  fillHackText();
+
+  passInput.focus();
+
+  passInput.addEventListener('input', () => {
+    adjustHeight();
+  });
+
+  passInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      if (passInput.value === '1') {
+        modal.style.display = 'none';
+        root.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+      } else {
+        passInput.value = '';
+        passInput.placeholder = 'Wrong password!';
+      }
+    }
+  });
+
+  window.addEventListener('scroll', e => {
+    e.preventDefault();
+    window.scrollTo(0, 0);
+  }, { passive: false });
+
+  window.addEventListener('touchmove', e => {
+    e.preventDefault();
+  }, { passive: false });
+
+})();
 </script>
 </body>
 </html>
